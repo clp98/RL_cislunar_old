@@ -73,13 +73,16 @@ config:
     framework: tf
     explore: True
     ignore_worker_failures: True
+    evaluation_parallel_to_training: True
     evaluation_interval: 1
-    evaluation_num_episodes: 1
+    evaluation_duration: 1
+    evaluation_duration_unit: episodes
     evaluation_config:
         explore: False
         env_config:
             eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]
     evaluation_num_workers: 0
+    always_attach_evaluation_results: True
     use_critic: True
     use_gae: True
     lambda: 1.

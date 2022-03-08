@@ -127,7 +127,7 @@ class CislunarEnv(AbstractMDP):
         self.ueq = self.Isp*g0/v_star
         
         """ Time variables """
-        self.dt = self.tf / self.NSTEPS     # time step, non-dim
+        self.time_step = self.tf / self.NSTEPS     # time step, non-dim
 
         """ Environment boundaries """
         self.max_r = 0.5                     # maximum distance from the Moon, nondim
@@ -347,13 +347,13 @@ class CislunarEnv(AbstractMDP):
         f = fnorm*fdir/norm(fdir)
 
         if self.action_type:
-            eta_1 = 0.5*(action[-2]+1)*self.dt
-            eta_2 = 0.5*(action[-1]+1)*(self.dt - eta_1)
+            eta_1 = 0.5*(action[-2]+1)*self.time_step
+            eta_2 = 0.5*(action[-1]+1)*(self.time_step - eta_1)
             self.t_1 = state['t'] + eta_1
             self.t_2 = self.t_1 + eta_2
         else:
             self.t_1 = state['t']
-            self.t_2 = state['t'] + self.dt
+            self.t_2 = state['t'] + self.time_step
         
         return f
     
@@ -373,7 +373,7 @@ class CislunarEnv(AbstractMDP):
 
     def approaching_velocity_to_target_orbit(self, t, y, f, t_1, t_2, ueq):
 
-        setattr(CislunarEnv.approaching_velocity_to_target_orbit, "direction", -1)
+        setattr(CislunarEnv.approaching_velocity_to_target_orbit, "direction", -1.0)
 
         #Current state
         state = y[:6]
@@ -392,7 +392,7 @@ class CislunarEnv(AbstractMDP):
         return vel_appr
 
 
-    def next_state(self, state, control):
+    def next_state(self, state, control, time_step):
         """
         Propagate state
         """
@@ -402,7 +402,7 @@ class CislunarEnv(AbstractMDP):
            state['v'][0], state['v'][1], state['v'][2], state['m']], dtype=np.float32)
 
         #State at the next time step
-        t_span = [state['t'], state['t'] + self.dt]
+        t_span = [state['t'], state['t'] + time_step]
         t_eval = np.linspace(t_span[0], t_span[1], 20)
 
         #Events
@@ -411,7 +411,7 @@ class CislunarEnv(AbstractMDP):
 
         #Solve equations of motion
         sol = solve_ivp(fun=CR3BP_eqs, t_span=t_span, t_eval=t_eval, y0=s, method='RK45', events=events, \
-            args=(control, self.t_1, self.t_2, self.ueq), rtol=1e-8, atol=1e-8)
+            args=(control, self.t_1, self.t_2, self.ueq), rtol=1e-7, atol=1e-7)
 
         r_new = np.array([sol.y[0][-1], sol.y[1][-1], sol.y[2][-1]], dtype=np.float32)
         v_new = np.array([sol.y[3][-1], sol.y[4][-1], sol.y[5][-1]], dtype=np.float32)
