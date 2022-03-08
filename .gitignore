@@ -1,0 +1,7 @@
+.vscode/
+results*/
+sol*/
+__pycache__/
+environment/__pycache__/
+.DS_Store
+StdOutput/
