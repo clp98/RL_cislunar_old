@@ -59,7 +59,7 @@ config:
     num_cpus_per_worker: 0.6
     num_gpus_per_worker: 0
     num_cpus_for_driver: 1
-    rollout_fragment_length: 50
+    rollout_fragment_length: 100
     batch_mode: complete_episodes
     train_batch_size: 30000
     model:
@@ -93,7 +93,7 @@ config:
     lr: 1.0e-04
     lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]]
     vf_loss_coeff: 0.5
-    clip_param: 0.1
+    clip_param: 0.05
     vf_clip_param: 1.
     env: environment.cislunar_env.CislunarEnv
     env_config:
@@ -103,7 +103,7 @@ config:
         pertIC: False
         nav_errors: False
         fixed_point_f: False
-        NSTEPS: 50
+        NSTEPS: 100
         eps_schedule: [[0, 1.0e-03], [2000, 1.0e-03]]
         eta: 0.1
         fmax: 4.0e-02
