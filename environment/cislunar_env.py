@@ -12,6 +12,7 @@ from sklearn.neighbors import KDTree
 from pyrlprob.mdp import AbstractMDP
 
 from environment.CR3BP import *
+from environment.min_dist import *
 
 
 """ RL CISLUNAR ENVIRONMENT CLASS """
@@ -116,18 +117,18 @@ class CislunarEnv(AbstractMDP):
         super().__init__(config=env_config)
 
         """ Class attributes """
-        self.r0_in = np.array(self.r0_in, dtype=np.float32)
-        self.v0_in = np.array(self.v0_in, dtype=np.float32)
-        self.r0_f = np.array(self.r0_f, dtype=np.float32)
-        self.v0_f = np.array(self.v0_f, dtype=np.float32)
-        self.dr0_max = np.array(self.dr0_max, dtype=np.float32)
-        self.dv0_max = np.array(self.dv0_max, dtype=np.float32)
-        self.sigma_r = np.array(self.sigma_r, dtype=np.float32)
-        self.sigma_v = np.array(self.sigma_v, dtype=np.float32)
+        self.r0_in = np.array(self.r0_in)
+        self.v0_in = np.array(self.v0_in)
+        self.r0_f = np.array(self.r0_f)
+        self.v0_f = np.array(self.v0_f)
+        self.dr0_max = np.array(self.dr0_max)
+        self.dv0_max = np.array(self.dv0_max)
+        self.sigma_r = np.array(self.sigma_r)
+        self.sigma_v = np.array(self.sigma_v)
         self.ueq = self.Isp*g0/v_star
         
         """ Time variables """
-        self.time_step = self.tf / self.NSTEPS     # time step, non-dim
+        self.time_step = self.tf / float(self.H)     # time step, non-dim
 
         """ Environment boundaries """
         self.max_r = 0.5                     # maximum distance from the Moon, nondim
@@ -140,24 +141,28 @@ class CislunarEnv(AbstractMDP):
         self.rMoon = np.array([1 - mu, 0., 0.]) #nondim
 
         """ States along the initial and target orbit """
-        self.Npoints = 500
+        self.s0_in = np.concatenate((self.r0_in, self.v0_in), axis = None)
+        self.s0_f = np.concatenate((self.r0_f, self.v0_f), axis = None)
+        self.Npoints = 1000
         t_eval_in = np.linspace(0., self.T_in, self.Npoints)
         t_eval_f = np.linspace(0., self.T_f, self.Npoints)
-        self.rorb_in, self.vorb_in = \
-            propagate_cr3bp_free(self.r0_in, self.v0_in,
-            [0, self.T_in], t_eval = t_eval_in)
-        self.rorb_f, self.vorb_f = \
-            propagate_cr3bp_free(self.r0_f, self.v0_f, \
-            [0, self.T_f], t_eval = t_eval_f)
-        self.sorb_f = np.concatenate((self.rorb_f, self.vorb_f), axis=1)
+        self.sorb_in = \
+            propagate_cr3bp_free(self.s0_in, t_eval = t_eval_in)
+        self.sorb_f = \
+            propagate_cr3bp_free(self.s0_f, t_eval = t_eval_f)
 
         """ Final point """
         if self.fixed_point_f:
-            self.rf = self.rorb_f[int(len(self.rorb_f)/2 - 1)]
-            self.vf = self.vorb_f[int(len(self.rorb_f)/2 - 1)]
-            self.state_f = np.concatenate((self.rf, self.vf), axis=None)
+            self.state_f = self.sorb_f[int(len(self.sorb_f)/2 - 1)]
         else:
             self.tree = KDTree(self.sorb_f, metric='euclidean')
+        
+        """ Epsilon law """
+        self.iter0 = self.eps_schedule[0][0]
+        self.epsilon0 = self.eps_schedule[0][1]
+        self.iterf = self.eps_schedule[1][0]
+        self.epsilonf = self.eps_schedule[1][1]
+        self.epsilon = self.epsilon0
 
         """ OBSERVATION/ACTION SPACE """
         if self.planar:
@@ -168,10 +173,10 @@ class CislunarEnv(AbstractMDP):
             self.n_act = 4
         if self.action_type:
             self.n_act = self.n_act + 2
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.n_obs,), dtype=np.float32)
-        self.action_space = spaces.Box(low=-1., high=1., shape=(self.n_act,), dtype=np.float32)
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.n_obs,))
+        self.action_space = spaces.Box(low=-1., high=1., shape=(self.n_act,))
 
-        self.max_episode_steps = self.NSTEPS
+        self.max_episode_steps = self.H
         self.reward_range = (-float('inf'), 0.)
 
 
@@ -186,7 +191,7 @@ class CislunarEnv(AbstractMDP):
         reward = state['m'] - prev_state['m']
 
         # Episode end
-        if state["event"] or state["step"] == self.NSTEPS:
+        if state["event"] or state["step"] == self.H:
 
             done = True
             
@@ -209,8 +214,8 @@ class CislunarEnv(AbstractMDP):
         Constraint violation on closest state
         """
 
-        c_viol_r = norm(r - rNN)/norm(rNN)
-        c_viol_v = norm(v - vNN)/norm(vNN)
+        c_viol_r = norm(r - rNN)
+        c_viol_v = norm(v - vNN)
         c_viol_s = dist
 
         return c_viol_r, c_viol_v, c_viol_s
@@ -233,17 +238,15 @@ class CislunarEnv(AbstractMDP):
         if not self.fixed_point_f:
             dist, ind = self.tree.query([state], k=1)
 
-            rNN = self.rorb_f[ind[0][0]]
-            vNN = self.vorb_f[ind[0][0]]
-
-            stateNN = np.concatenate((rNN, vNN), axis = None)
-
-            dist = dist/norm(stateNN)
+            stateNN = self.sorb_f[ind[0][0]]
+            rNN = stateNN[0:3]
+            vNN = stateNN[3:6]
+            dist = dist[0][0]
         #Fixed final point
         else:
-            rNN = self.rf
-            vNN = self.vf
-            dist = norm(state - self.state_f)/norm(self.state_f)
+            rNN = self.state_f[0:3]
+            vNN = self.state_f[3:6]
+            dist = norm(state - self.state_f)
 
         return rNN, vNN, dist
 
@@ -262,13 +265,13 @@ class CislunarEnv(AbstractMDP):
         dx0 = float(uniform(-self.dr0_max[0], self.dr0_max[0]))
         dy0 = float(uniform(-self.dr0_max[1], self.dr0_max[1]))
         dz0 = float(uniform(-self.dr0_max[2], self.dr0_max[2]))
-        dr0 = np.array([dx0, dy0, dz0], dtype=np.float32)
+        dr0 = np.array([dx0, dy0, dz0])
 
         #Velocity error
         dvx0 = float(uniform(-self.dv0_max[0], self.dv0_max[0]))
         dvy0 = float(uniform(-self.dv0_max[1], self.dv0_max[1]))
         dvz0 = float(uniform(-self.dv0_max[2], self.dv0_max[2]))
-        dv0 = np.array([dvx0, dvy0, dvz0], dtype=np.float32)
+        dv0 = np.array([dvx0, dvy0, dvz0])
 
         return dr0, dv0
 
@@ -287,13 +290,13 @@ class CislunarEnv(AbstractMDP):
         dx = float(normal(0., self.sigma_r[0], 1))
         dy = float(normal(0., self.sigma_r[1], 1))
         dz = float(normal(0., self.sigma_r[2], 1))
-        dr = np.array([dx, dy, dz], dtype=np.float32)
+        dr = np.array([dx, dy, dz])
 
         #Velocity error
         dvx = float(normal(0., self.sigma_v[0], 1))
         dvy = float(normal(0., self.sigma_v[1], 1))
         dvz = float(normal(0., self.sigma_v[2], 1))
-        dv = np.array([dvx, dvy, dvz], dtype=np.float32)
+        dv = np.array([dvx, dvy, dvz])
 
         #mass error
         dm = float(normal(0., self.sigma_m, 1))
@@ -321,11 +324,11 @@ class CislunarEnv(AbstractMDP):
         if self.planar:
             obs = np.array([r_obs[0], r_obs[1], \
                 v_obs[0], v_obs[1], \
-                m_obs, state["t"], state["dist"]], dtype=np.float32)
+                m_obs, state["t"], state["dist"]])
         else:
             obs = np.array([r_obs[0], r_obs[1], r_obs[2], \
                 v_obs[0], v_obs[1], v_obs[2], \
-                m_obs, state["t"], state["dist"]], dtype=np.float32)
+                m_obs, state["t"], state["dist"]])
         
         return obs
 
@@ -371,27 +374,6 @@ class CislunarEnv(AbstractMDP):
         return dist - self.epsilon
     
 
-    def approaching_velocity_to_target_orbit(self, t, y, f, t_1, t_2, ueq):
-
-        setattr(CislunarEnv.approaching_velocity_to_target_orbit, "direction", -1.0)
-
-        #Current state
-        state = y[:6]
-
-        #Current state derivative
-        ydot = CR3BP_eqs(t, y, f, t_1, t_2, ueq)
-        state_dot = ydot[:6]
-
-        #Nearest neighbor to current state
-        rNN, vNN, _ = self.NearestNeighbor(state)
-        stateNN = np.concatenate((rNN, vNN), axis = None)
-
-        #Approaching velocity
-        vel_appr = np.dot(state_dot, (stateNN - state)/norm(stateNN - state))
-
-        return vel_appr
-
-
     def next_state(self, state, control, time_step):
         """
         Propagate state
@@ -399,22 +381,23 @@ class CislunarEnv(AbstractMDP):
 
         #State before propagation
         s = np.array([state['r'][0], state['r'][1], state['r'][2], \
-           state['v'][0], state['v'][1], state['v'][2], state['m']], dtype=np.float32)
+           state['v'][0], state['v'][1], state['v'][2], state['m']])
 
         #State at the next time step
+        N_points_step = 20
         t_span = [state['t'], state['t'] + time_step]
-        t_eval = np.linspace(t_span[0], t_span[1], 20)
+        t_eval = np.linspace(t_span[0], t_span[1], N_points_step)
 
         #Events
         hitMoon.terminal = True
-        events = (hitMoon, self.min_dist_from_target_orbit, self.approaching_velocity_to_target_orbit)
+        events = (hitMoon, self.min_dist_from_target_orbit)
 
         #Solve equations of motion
         sol = solve_ivp(fun=CR3BP_eqs, t_span=t_span, t_eval=t_eval, y0=s, method='RK45', events=events, \
             args=(control, self.t_1, self.t_2, self.ueq), rtol=1e-7, atol=1e-7)
 
-        r_new = np.array([sol.y[0][-1], sol.y[1][-1], sol.y[2][-1]], dtype=np.float32)
-        v_new = np.array([sol.y[3][-1], sol.y[4][-1], sol.y[5][-1]], dtype=np.float32)
+        r_new = np.array([sol.y[0][-1], sol.y[1][-1], sol.y[2][-1]])
+        v_new = np.array([sol.y[3][-1], sol.y[4][-1], sol.y[5][-1]])
         m_new = sol.y[6][-1]
 
         #Dense solution
@@ -433,33 +416,25 @@ class CislunarEnv(AbstractMDP):
             event_triggered = False
         
         #Closest state to target orbit
-        min_dist = np.inf
-        if sol.t_events[2].size:
-            for i in range(sol.t_events[2].size):
-                state_event = np.array([sol.y_events[2][i][0], sol.y_events[2][i][1], sol.y_events[2][i][2], \
-                    sol.y_events[2][i][3], sol.y_events[2][i][4], sol.y_events[2][i][5]], dtype=np.float32)
-                _, _, dist = self.NearestNeighbor(state_event)
-                if dist < min_dist:
-                    min_dist = dist
-                    stateCP = state_event
-        else:
-            stateCP = np.concatenate((r_new, v_new), axis = None)
-        
-        #Evaluate minimum distance from target orbit
-        rNN, vNN, dist = self.NearestNeighbor(stateCP)
-        if dist > state["dist"]:
-            dist = state["dist"]
-            rNN = state["rNN"]
-            vNN = state["vNN"]
-            rCP = state["rCP"]
-            vCP = state["vCP"]
-        else:
-            rCP = stateCP[0:3]
-            vCP = stateCP[3:6]
+        min_dist = state["dist"]
+        rNN = state["rNN"]
+        vNN = state["vNN"]
+        rCP = state["rCP"]
+        vCP = state["vCP"]
+        for j in range(len(self.t_dense)):
+            state_dense = np.concatenate((np.array([self.r_dense[0][j], self.r_dense[1][j], self.r_dense[2][j]]), \
+                np.array([self.v_dense[0][j], self.v_dense[1][j], self.v_dense[2][j]])), axis = None)
+            rNN_dense, vNN_dense, dist = self.NearestNeighbor(state_dense)
+            if dist < min_dist:
+                min_dist = dist
+                rNN = rNN_dense
+                vNN = vNN_dense
+                rCP = state_dense[0:3]
+                vCP = state_dense[3:6]
 
         #State at next time-step
         s_new = {"r": r_new, "v": v_new, "m": m_new, "t": t_final, \
-            "dist": dist, "rNN": rNN, "vNN": vNN, "rCP": rCP, "vCP": vCP, \
+            "dist": min_dist, "rNN": rNN, "vNN": vNN, "rCP": rCP, "vCP": vCP, \
             "step": state["step"] + 1, "event": event_triggered}
         
         return s_new

@@ -103,8 +103,8 @@ config:
         pertIC: False
         nav_errors: False
         fixed_point_f: False
-        NSTEPS: 100
-        eps_schedule: [[0, 1.0e-03], [2000, 1.0e-03]]
+        H: 100
+        eps_schedule: [[0, 1.0e-01], [1900, 1.0e-03]]
         eta: 0.1
         fmax: 4.0e-02
         Isp: 3000.

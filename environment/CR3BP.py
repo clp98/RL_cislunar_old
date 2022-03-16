@@ -2,6 +2,9 @@ import numpy as np
 from numpy import sqrt
 from numpy.linalg import norm
 from scipy.integrate import solve_ivp
+from numbalsoda import lsoda_sig, lsoda
+from numba import njit, cfunc
+from environment.solve_ivp_lsoda import *
 
 #Constants
 solar_day = 86400 #solar day, s
@@ -72,9 +75,94 @@ def CR3BP_eqs(t, s, f, t_1, t_2, ueq):
     vz_dot = -(1.-mu)*z/(r13**3) - mu*z/(r23**3) + fz/m
     m_dot = - f_norm/ueq
 
-    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot, m_dot], dtype='object')
+    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot, m_dot])
 
     return s_dot
+
+
+def CR3BP_eqs_free(t, s):
+    """
+    Right-hand side of the system of equations of motion of a spacecraft
+    in the Earth-Moon circular restricted three body problem (CR3BP).
+    The (nondimensioanl) state components are propagated with respect to the system barycenter in the
+    Earth-Moon rotating reference frame.
+
+    Args:
+        t - (float) time (nondim)
+        s - (np.array) spacecraft state (position, velocity, mass) (nondim)
+
+    Return:
+        s_dot - (np.array) derivatives of the spacecraft state (nondim)
+    """
+
+    #State variables
+
+    #spacecraft position
+    x = s[0]
+    y = s[1]
+    z = s[2]
+
+    #spacecraft velocity
+    vx = s[3]
+    vy = s[4]
+    vz = s[5]
+
+    #Auxiliary variables
+    r13 = sqrt((x+mu)**2 + y**2 + z**2) #Earth-S/C distance
+    r23 = sqrt((x-1.+mu)**2 + y**2 + z**2) #Moon-S/C distance
+
+    #Equations of motion
+    x_dot = vx
+    y_dot = vy
+    z_dot = vz
+    vx_dot = 2.*vy + x - (1.-mu)*(x+mu)/(r13**3) - mu*(x-1.+mu)/(r23**3)
+    vy_dot = -2.*vx + y - (1.-mu)*y/(r13**3) - mu*y/(r23**3)
+    vz_dot = -(1.-mu)*z/(r13**3) - mu*z/(r23**3)
+
+    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot])
+
+    return s_dot
+
+
+@cfunc(lsoda_sig)
+def CR3BP_eqs_free_lsoda(t, s, sdot, data):
+    """
+    Right-hand side of the system of equations of motion of a spacecraft
+    in the Earth-Moon circular restricted three body problem (CR3BP).
+    The (nondimensioanl) state components are propagated with respect to the system barycenter in the
+    Earth-Moon rotating reference frame.
+
+    Args:
+        t - (float) time (nondim)
+        s - (np.array) spacecraft state (position, velocity, mass) (nondim)
+
+    Return:
+        s_dot - (np.array) derivatives of the spacecraft state (nondim)
+    """
+
+    #State variables
+
+    #spacecraft position
+    x = s[0]
+    y = s[1]
+    z = s[2]
+
+    #spacecraft velocity
+    vx = s[3]
+    vy = s[4]
+    vz = s[5]
+
+    #Auxiliary variables
+    r13 = sqrt((x+mu)**2 + y**2 + z**2) #Earth-S/C distance
+    r23 = sqrt((x-1.+mu)**2 + y**2 + z**2) #Moon-S/C distance
+
+    #Equations of motion
+    sdot[0] = vx
+    sdot[1] = vy
+    sdot[2] = vz
+    sdot[3] = 2.*vy + x - (1.-mu)*(x+mu)/(r13**3) - mu*(x-1.+mu)/(r23**3)
+    sdot[4] = -2.*vx + y - (1.-mu)*y/(r13**3) - mu*y/(r23**3)
+    sdot[5] = -(1.-mu)*z/(r13**3) - mu*z/(r23**3)
 
 
 def hitMoon(t, y, f, t_1, t_2, ueq):
@@ -125,33 +213,25 @@ def Jacobi_const(x, y, z, vx, vy, vz):
     return C
 
 
-def propagate_cr3bp_free(r, v, t_span, t_eval):
+def propagate_cr3bp_free(s, t_eval):
     """
     Propagate CR3BP equation with thrust term
 
     Args:
-        r (np.array): position
-        v (np.array): velocity
-        t_span (list): temporal span ([t0, tf])
-        t_eval (list): array of times at which to store the computed solution, 
-            must lie within `t_span`
+        s (np.array): state
+        t_eval (list): array of times at which to store the computed solution
+
     Return:
-        r_new: new positions
-        v_new: new velocities
+        sol: new states
 
     """
-    
-    #State
-    s = np.array([r[0], r[1], r[2], \
-        v[0], v[1], v[2], 1.], dtype=np.float32)
 
     #Integration
-    sol = solve_ivp(fun=CR3BP_eqs, t_span=t_span, y0=s, method='RK45', t_eval=t_eval, \
-            args=(np.array([0., 0., 0.]), t_span[0], t_span[1], 1.), rtol=1e-8, atol=1e-8)
+    if t_eval[-1] == t_eval[0]:
+        return s
 
-    #Next state
-    r_new = np.transpose(np.array(sol.y[0:3][:], dtype=np.float32))
-    v_new = np.transpose(np.array(sol.y[3:6][:], dtype=np.float32))
+    funptr = CR3BP_eqs_free_lsoda.address
+    sol, _ = solve_ivp_lsoda(funptr, s, t_eval, 1.0e-07, 1.0e-07)
 
-    return r_new, v_new
+    return sol
     

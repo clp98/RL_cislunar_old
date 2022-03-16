@@ -1,3 +1,9 @@
+load:
+  prev_exp_dirs:
+  - /home/spectral02/Documenti/Python_codes/RL_cislunar/results/PPOTrainer_2022-03-09_18-03-08/PPOTrainer_environment.cislunar_env.CislunarEnv_cb33d_00000_0_2022-03-09_18-03-08/
+  prev_last_cps:
+  - 1420
+  trainer_dir: /home/spectral02/Documenti/Python_codes/RL_cislunar/results/PPOTrainer_2022-03-09_18-03-08/
 run: ppo
 stop:
     training_iteration: 2000
@@ -103,7 +109,7 @@ config:
         pertIC: False
         nav_errors: False
         fixed_point_f: False
-        NSTEPS: 100
+        H: 100
         eps_schedule: [[0, 1.0e-03], [2000, 1.0e-03]]
         eta: 0.1
         fmax: 4.0e-02
