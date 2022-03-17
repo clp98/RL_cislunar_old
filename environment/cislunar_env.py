@@ -143,7 +143,7 @@ class CislunarEnv(AbstractMDP):
         """ States along the initial and target orbit """
         self.s0_in = np.concatenate((self.r0_in, self.v0_in), axis = None)
         self.s0_f = np.concatenate((self.r0_f, self.v0_f), axis = None)
-        self.Npoints = 1000
+        self.Npoints = 2500
         t_eval_in = np.linspace(0., self.T_in, self.Npoints)
         t_eval_f = np.linspace(0., self.T_f, self.Npoints)
         self.sorb_in = \
@@ -384,7 +384,7 @@ class CislunarEnv(AbstractMDP):
            state['v'][0], state['v'][1], state['v'][2], state['m']])
 
         #State at the next time step
-        N_points_step = 20
+        N_points_step = 50
         t_span = [state['t'], state['t'] + time_step]
         t_eval = np.linspace(t_span[0], t_span[1], N_points_step)
 
