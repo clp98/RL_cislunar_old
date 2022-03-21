@@ -3,7 +3,7 @@
 
 rm -r results/
 
-i_min=2
+i_min=1
 i_max=3
 
 for ((i = i_min ; i <= i_max ; i+=1)); do

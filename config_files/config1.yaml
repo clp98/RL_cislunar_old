@@ -56,9 +56,9 @@ config:
     num_workers: 10
     num_envs_per_worker: 6
     num_gpus: 0
-    num_cpus_per_worker: 1
+    num_cpus_per_worker: 0.6
     num_gpus_per_worker: 0
-    num_cpus_for_driver: 4
+    num_cpus_for_driver: 2
     rollout_fragment_length: 100
     batch_mode: complete_episodes
     train_batch_size: 30000
@@ -89,9 +89,9 @@ config:
     kl_coeff: 0.
     sgd_minibatch_size: 3000
     shuffle_sequences: True
-    num_sgd_iter: 40
+    num_sgd_iter: 50
     lr: 1.0e-04
-    # lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]]
+    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]]
     vf_loss_coeff: 0.5
     clip_param: 0.05
     vf_clip_param: 1.
