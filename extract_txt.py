@@ -27,7 +27,7 @@ T_Halo_L2=[]
 
 
 #read L1 Halo data
-with open('L1_Halo_north.txt', "r") as file_L1: 
+with open('PO_files/l1_halo_north.txt', "r") as file_L1: 
     file_L1.readline()
     file_all=file_L1.readlines()
     for line in file_all: #read line
@@ -65,7 +65,8 @@ for i in range(N_orbits):
     r0=np.array([x_Halo_L1[i], y_Halo_L1[i], z_Halo_L1[i]])
     v0=np.array([vx_Halo_L1[i], vy_Halo_L1[i], vz_Halo_L1[i]])
 
-    r_Halo_L1, v_Halo_L1=propagate_cr3bp_free(r0, v0, t_span, t_eval=t_eval)
+    s0=np.concatenate((r0, v0, 1), axis=None)
+    r_Halo_L1, v_Halo_L1=propagate_cr3bp_free(s0, t_eval=t_eval)
     
     for j in range(N_times):
         C=Jacobi_const(r_Halo_L1[j][0], r_Halo_L1[j][1], r_Halo_L1[j][2], v_Halo_L1[j][0], v_Halo_L1[j][1], v_Halo_L1[j][2])
