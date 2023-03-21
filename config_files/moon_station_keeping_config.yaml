@@ -1,0 +1,87 @@
+run: ppo  #algorithm used
+stop:
+    training_iterations: 100  #maximum number of gym iterations
+
+#custom_metrics:??
+   
+
+
+postprocessing_data:
+    episode_step_data:  #data we want after every step
+       -t
+       -x
+       -y
+       -z
+       -vx
+       -vy
+       -vz
+       -m
+       -F_mod
+       -dist_r
+       -dist_v
+    episode_end_data:  #data we want only at the end
+       -dist_r
+       -dist_v
+
+
+
+
+config:  #all the data necessary (it permits to work in parallel)
+    num_workers: 
+    num_envs_per_worker: 
+    num_gpus: 
+    num_cpus_per_worker: 
+    num_gpus_per_worker: 
+    num_cpus_for_driver: 
+    rollout_fragment_length: 
+    batch_mode: complete_episodes  #complete_episodes oppure troncate_episodes, complete-->blocca gli episodi quando done=True
+    train_batch_size:  ##step complessivi di tutti i worker di tutti gli environment
+    model:  #definisce la rete neurale
+        fcnet_hiddens:  #numero di layer (2) e numero di neuroni per layer (64)
+        fcnet_activation: tanh  #activation function used
+        use_lstm: False
+        vf_share_layers: False  #False-->rete separata
+        free_log_std: True
+    gamma: 1.
+    log_level: INFO
+    framework: tf
+    explore: True
+    ignore_worker_failures: True
+    evaluation_parallel_to_training: True
+    evaluation_interval: 
+    evaluation_duration: 
+    evaluation_duration_unit: episodes
+    evaluation_config:
+        explore: False
+        env_config:
+            eps_schedule: 
+    evaluation_num_workers: 
+    always_attach_evaluation_results: True
+    use_critic: True
+    use_gae: True
+    lambda: 
+    kl_coeff: 
+    sgd_minibatch_size: 
+    shuffle_sequences: True
+    num_sgd_iter:
+    alpha:   #learning rate of the network
+    lr_schedule: 
+    vf_loss_coeff: 
+    clip_param:   #by how much (percentage) the policy can vary
+    vf_clip_param: 
+    env: environment.moon_station_keeping_env.Moon_Station_Keeping
+
+#################################################################
+
+env_config:
+    num_iter:  #number of iterations
+    Isp: 3000 #specific impulse
+    c_star: 2500  #engine characteristic velocity
+    tf: 1000  #maximum duration of the mission
+    r0: [  ,  ,  ]  #starting position
+    v0: [  ,  ,  ]  #initial velocity
+    Fmax: 0.04  #maximum thrust of the engine
+    m_sc: 1  #initial mass of the spacecraft
+    T_ro:  #period of the reference orbit
+    t_1:  #starting time of thrust
+    t_2:  #end time of thrust

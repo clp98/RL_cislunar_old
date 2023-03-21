@@ -24,8 +24,7 @@ class CislunarEnv(AbstractMDP):
     The spacecraft trajectory is divided in NSTEPS segments, and 
     the CR3BP equations of motion, with low-thrust terms, are used to propagate the spacecraft state
     between any two time-steps. The (nondimensioanl) state components are defined with respect 
-    to the barycenter of a
-    Earth-Moon rotating reference frame.  
+    to the barycenter of a Earth-Moon rotating reference frame.  
     The environment can be deterministic or stochastic 
     (i.e., with dynamical and/or navigation uncertainties).
     The reference initial state of the chaser can be randomly sampled along the initial orbit, or
@@ -42,7 +41,7 @@ class CislunarEnv(AbstractMDP):
             (bool) pertIC:      True = perturbed initial conditions,
                                 False = nominal initial conditions
             (bool) nav_errors:  True = navigation errors,
-                                False = no navigation error
+                                False = no navigation errors
             (bool) fixed_point_f:   True = fixed final point
                                     False = free final point                
             (int) NSTEPS: number of trajectory segments
@@ -66,6 +65,7 @@ class CislunarEnv(AbstractMDP):
             (float) sigma_m: standard deviation on mass, non-dim
 
 
+            
     RL ENVIRONMENT (MDP)
     Observations: 
         Type: Box(9)
@@ -151,13 +151,13 @@ class CislunarEnv(AbstractMDP):
         self.sorb_f = \
             propagate_cr3bp_free(self.s0_f, t_eval = t_eval_f)
 
-        """ Final point """
-        if self.fixed_point_f:
+        """ Final point """ 
+        if self.fixed_point_f:  #True --> fixed final point
             self.state_f = self.sorb_f[int(len(self.sorb_f)/2 - 1)]
-        else:
+        else:  #False --> free final point
             self.tree = KDTree(self.sorb_f, metric='euclidean')
         
-        """ Epsilon law """
+        """ Epsilon law """  #(see pyrlprob documentation)
         self.iter0 = self.eps_schedule[0][0]
         self.epsilon0 = self.eps_schedule[0][1]
         self.iterf = self.eps_schedule[1][0]
@@ -165,19 +165,19 @@ class CislunarEnv(AbstractMDP):
         self.epsilon = self.epsilon0
 
         """ OBSERVATION/ACTION SPACE """
-        if self.planar:
+        if self.planar: #planar problem
             self.n_obs = 7
             self.n_act = 3
-        else:
+        else: #3D problem
             self.n_obs = 9
             self.n_act = 4
-        if self.action_type:
+        if self.action_type: #Box(6) ergo add +2 components
             self.n_act = self.n_act + 2
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.n_obs,))
-        self.action_space = spaces.Box(low=-1., high=1., shape=(self.n_act,))
+        self.action_space = spaces.Box(low=-1., high=1., shape=(self.n_act,))  #action acts in the (-1,+1) range
 
         self.max_episode_steps = self.H
-        self.reward_range = (-float('inf'), 0.)
+        self.reward_range = (-float('inf'), 0.) 
 
 
     def collect_reward(self, prev_state, state, control):
@@ -204,10 +204,11 @@ class CislunarEnv(AbstractMDP):
             state["c_viol_v"] = c_viol_v
             state["c_viol_s"] = c_viol_s
 
-            reward = reward - self.eta*c_viol
+            reward = reward - self.eta*c_viol #update the reward function
                 
         return reward, done
     
+    ###
 
     def cstr_violation(self, dist, rNN, vNN, r, v):
         """
@@ -234,16 +235,14 @@ class CislunarEnv(AbstractMDP):
             dist: distance between state and nearest neighbor
         """
 
-        #Free final point
-        if not self.fixed_point_f:
+        if not self.fixed_point_f: #free final point
             dist, ind = self.tree.query([state], k=1)
 
             stateNN = self.sorb_f[ind[0][0]]
             rNN = stateNN[0:3]
             vNN = stateNN[3:6]
             dist = dist[0][0]
-        #Fixed final point
-        else:
+        else: #fixed final point
             rNN = self.state_f[0:3]
             vNN = self.state_f[3:6]
             dist = norm(state - self.state_f)
@@ -310,22 +309,22 @@ class CislunarEnv(AbstractMDP):
         """
 
         # Get navigation errors
-        if self.nav_errors:
+        if self.nav_errors: #with navigation errors
             dr, dv, dm = self.state_uncty()
             r_obs = state["r"] + dr
             v_obs = state["v"] + dv
             m_obs = state["m"] + dm
-        else:
+        else: #without navigation errors
             r_obs = state["r"]
             v_obs = state["v"]
             m_obs = state["m"]
 
         # Observations
-        if self.planar:
+        if self.planar: #planar problem (7 components)
             obs = np.array([r_obs[0], r_obs[1], \
                 v_obs[0], v_obs[1], \
                 m_obs, state["t"], state["dist"]])
-        else:
+        else: #3D problem (9 components)
             obs = np.array([r_obs[0], r_obs[1], r_obs[2], \
                 v_obs[0], v_obs[1], v_obs[2], \
                 m_obs, state["t"], state["dist"]])
@@ -514,7 +513,7 @@ class CislunarEnv(AbstractMDP):
     """ Initialize the episode """
     def reset(self):
         """
-        :return obs: observation vector
+        return obs: observation vector
 
         """
 

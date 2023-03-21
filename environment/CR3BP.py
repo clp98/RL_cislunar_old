@@ -15,18 +15,18 @@ v_star = l_star/t_star #system characteristic velocity, km/s
 g0 = 9.80665e-3 #sea-level gravitational acceleration, km/s^2
 
 
-def CR3BP_eqs(t, s, f, t_1, t_2, ueq):
+def CR3BP_eqs(t, s, f, t_1, t_2, ueq): #with control
     """
     Right-hand side of the system of equations of motion of a spacecraft
     in the Earth-Moon circular restricted three body problem (CR3BP),
     with low thrust terms.
-    The (nondimensioanl) state components are propagated with respect to the system barycenter in the
+    The (nondimensional) state components are propagated with respect to the system barycenter in the
     Earth-Moon rotating reference frame.
 
     Args:
         t - (float) time (nondim)
-        s - (np.array) spacecraft state (position, velocity, mass) (nondim)
-        f - (np.array) spacecraft thrust (nondim)
+        s - (np.array) spacecraft state (position, velocity, mass) (nondim) - 7 components (3+3+1)
+        f - (np.array) spacecraft thrust (nondim) - 3 components
         t_1 - (float) start of thrusting period (nondim)
         t_2 - (float) end of thrusting period (nondim)
         ueq - (float) spacecraft equivalent ejection velocity (nondim)
@@ -70,17 +70,19 @@ def CR3BP_eqs(t, s, f, t_1, t_2, ueq):
     x_dot = vx
     y_dot = vy
     z_dot = vz
+
     vx_dot = 2.*vy + x - (1.-mu)*(x+mu)/(r13**3) - mu*(x-1.+mu)/(r23**3) + fx/m
     vy_dot = -2.*vx + y - (1.-mu)*y/(r13**3) - mu*y/(r23**3) + fy/m
     vz_dot = -(1.-mu)*z/(r13**3) - mu*z/(r23**3) + fz/m
+
     m_dot = - f_norm/ueq
 
-    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot, m_dot])
+    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot, m_dot]) #output of CR3BP_eqs - 7 components (3+3+1)
 
     return s_dot
 
 
-def CR3BP_eqs_free(t, s):
+def CR3BP_eqs_free(t, s):  #without control
     """
     Right-hand side of the system of equations of motion of a spacecraft
     in the Earth-Moon circular restricted three body problem (CR3BP).
@@ -119,13 +121,14 @@ def CR3BP_eqs_free(t, s):
     vy_dot = -2.*vx + y - (1.-mu)*y/(r13**3) - mu*y/(r23**3)
     vz_dot = -(1.-mu)*z/(r13**3) - mu*z/(r23**3)
 
-    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot])
+    s_dot = np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot]) #output of CR3BP_eqs_free - 6 components (3+3)
 
     return s_dot
 
 
-@cfunc(lsoda_sig)
-def CR3BP_eqs_free_lsoda(t, s, sdot, data):
+@cfunc(lsoda_sig) #A context that controls the transformation of stimulus functions (not strictly necessary)
+
+def CR3BP_eqs_free_lsoda(t, s, sdot, data): #with control but solved with lsoda resolver
     """
     Right-hand side of the system of equations of motion of a spacecraft
     in the Earth-Moon circular restricted three body problem (CR3BP).
@@ -233,5 +236,4 @@ def propagate_cr3bp_free(s, t_eval):
     funptr = CR3BP_eqs_free_lsoda.address
     sol, _ = solve_ivp_lsoda(funptr, s, t_eval, 1.0e-07, 1.0e-07)
 
-    return sol
-    
+    return sol 
