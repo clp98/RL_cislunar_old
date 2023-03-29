@@ -11,7 +11,7 @@ from numpy import sqrt
 
 from environment.equations import *
 from environment.constants import *
-from environment.CR3BP import *
+from environment.LOR_RL_cislunar.CR3BP import *
 
 
 class Moon_Station_Keeping_Env(AbstractMDP):
@@ -24,14 +24,14 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         #observations: x, y, z, vx, vy, vz, m, t, dist_r, dist_v
         #actions: Fx, Fy, Fz, Fmod
 
-        #obtain the Halo initial conditions randomly
-        
+        #obtain randomly the L1 Halo initial conditions
+        r0,v0=choose_Halo('/home/carlo/RL_cislunar/Halo_L1_rv', single_matrix=False)
 
         #class attributes
         num_steps=100.  #number of time intervals
         self.ueq=self.Isp*g0/v_star  #equivalent flux velocity
         self.dt=self.tf/float(self.num_steps)  #time step
-
+       
         self.num_obs=10.  #number of observations
         self.num_act=4.  #number of actions
         self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))
@@ -61,7 +61,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
 
-    def get_control(self, state, action):  #get the control thrust
+    def get_control(self, state, action):  #get the control thrust F
 
         Fmod=0.5*(action[-1]+1)*self.Fmax
         F_vect=action[:2]
@@ -74,21 +74,21 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
     def next_state(self, state, control, dt):  #propagate the state
 
-        state=np.array(state['r'][0], state['r'][1], state['r'][2], /
-                       state['v'][0], state['v'][1], state['v'][2], /
+        state=np.array(state['r'][0], state['r'][1], state['r'][2], \
+                       state['v'][0], state['v'][1], state['v'][2], \
                        state['m'], state['t'], state['dist_r'], state['dist_v'])  #current state 
 
         num_steps=100.  #number of time intervals
         t_span=[state['t'], state['t']+dt]  #time interval 
         t_eval=np.linspace(t_span[0], t_span[1], num_steps)  #time vector
 
-        data=np.array([control, self.ueq, t_1, self.t_2])???  #integration data
+        data=np.array([control, self.ueq])  #integration data
         solution_int=rk4(CR3BP, state, t_eval, data)  #obtain the solution by integration (CR3BP)
         
         self.success=True
-        state_next={'x':solution_int[0], 'y':solution_int[1], 'z':solution_int[2], /
-                    'vx':solution_int[3], 'vy':solution_int[4], 'vz':solution_int[5], /
-                    'm':solution_int[6], 't':solution_int[7]}  #next state
+        state_next={'x':solution_int[0], 'y':solution_int[1], 'z':solution_int[2], \
+                    'vx':solution_int[3], 'vy':solution_int[4], 'vz':solution_int[5], \
+                    'm':solution_int[6], 't':solution_int[7], 'step':state['step']+1}  #next state
         
         return state_next
     
@@ -110,8 +110,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         vz=state[5]
         v=sqrt(vx**2+vy**2+vz**2)
 
-        delta_r=norm(r-r_Halo)  #error in distance
-        delta_v=norm(v-v_Halo)  #error in velocity
+        delta_r=norm(r-self.r_Halo[state['step']])  #error in distance
+        delta_v=norm(v-self.v_Halo)  #error in velocity
 
         state['dist_r']=delta_r
         state['dist_v']=delta_v
@@ -124,9 +124,6 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             done=True
         if self.success is False:
             done=True
-        #dist=hitMoon(t, r0, F, t_1, t_2, self.ueq)
-        ######if   #it lets control if the sc is too close to the moon
-        #   done=True
         
         return reward, done
 
@@ -141,20 +138,22 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
     def get_info(self, state_prev, state, observation, control, reward, done):  #get current and final infos
-        
-        #epi_step_data (key) --> custom_metrics (list)
-        #epi_end_data (key) --> postproc_data (dictionary)
 
         info={}
-        info['epi_step_data']={}
+        info['episode_step_data']={}
 
         if done is False:  #episode not ended yet
-            info['episode_step_data']['x']=[state_prev['x']]
-            info['episode_step_data']['y']=[state_prev['y']]
-            info['episode_step_data']['z']=[state_prev['z']]
-            info['episode_step_data']['vx']=[state_prev['vx']]
-            info['episode_step_data']['vy']=[state_prev['vy']]
-            info['episode_step_data']['vz']=[state_prev['vz']]
+
+            #definisci con r --> r[0], r[1 etc??? 
+            info['episode_step_data']['r']=[state_prev['r']]
+            info['episode_step_data']['v']=[state_prev['v']]
+
+            info['episode_step_data']['x']=[state_prev['r'][0]]
+            info['episode_step_data']['y']=[state_prev['r'][1]]
+            info['episode_step_data']['z']=[state_prev['r'][2]]
+            info['episode_step_data']['vx']=[state_prev['v'][0]]
+            info['episode_step_data']['vy']=[state_prev['v'][1]]
+            info['episode_step_data']['vz']=[state_prev['v'][2]]
             info['episode_step_data']['m']=[state_prev['m']]
             info['episode_step_data']['t']=[state_prev['t']]
             info['episode_step_data']['dist_r']=[state_prev['dist_r']]
@@ -166,7 +165,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             info['custom_metrics']['dist_r']=state['dist_r']
             info['custom_metrics']['dist_v']=state['dist_v']
-           
+
+            #snellire anche qui???
             info['episode_step_data']['x'].append(state['x'])
             info['episode_step_data']['y'].append(state['y'])
             info['episode_step_data']['z'].append(state['z'])
@@ -195,7 +195,15 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_r_mean=0.
         self.dist_v_mean=0.
         control=0.
-        observation=self.get_observation(self.state, control)  #first observation to be returnes as output
+        
+        self.r0, self.v0= choose_Halo(self.filename, self.single_matrix)
+        self.state['r']=self.r0
 
+        observation=self.get_observation(self.state, control)  #first observation to be returned as output
 
         return observation
+
+
+
+
+r_Halo, v_Halo = 

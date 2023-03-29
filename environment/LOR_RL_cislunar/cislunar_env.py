@@ -11,8 +11,8 @@ from sklearn.neighbors import KDTree
 
 from pyrlprob.mdp import AbstractMDP
 
-from environment.CR3BP import *
-from environment.min_dist import *
+from environment.LOR_RL_cislunar.CR3BP import *
+from environment.LOR_RL_cislunar.min_dist import *
 
 
 """ RL CISLUNAR ENVIRONMENT CLASS """

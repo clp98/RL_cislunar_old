@@ -1,5 +1,5 @@
 import numpy as np
-from environment.CR3BP import *
+from environment.LOR_RL_cislunar.CR3BP import *
 from scipy.optimize import minimize_scalar
 from scipy.optimize import Bounds
 

@@ -1,12 +1,12 @@
-#Read txt file, extract initial conditions and propagate to get Halo orbit
-#(this script will be use only once in oprder to get the Halo orbit initial condition)
+#Read txt file, extract initial conditions and propagate them to get Halo orbit
+#(this script will be use only once in order to get the L1 Halo orbit random initial condition)
 
 import os
 import sys
 import time
 import numpy as np
 from numpy.linalg import norm
-from environment.CR3BP import propagate_cr3bp_free, Jacobi_const
+from environment.LOR_RL_cislunar.CR3BP import propagate_cr3bp_free, Jacobi_const
 
 #initialize vectors
 x_Halo_L1=[]
@@ -65,12 +65,12 @@ for i in range(N_orbits):
     r0=np.array([x_Halo_L1[i], y_Halo_L1[i], z_Halo_L1[i]])
     v0=np.array([vx_Halo_L1[i], vy_Halo_L1[i], vz_Halo_L1[i]])
 
-    s0=np.concatenate((r0, v0, 1), axis=None)
-    r_Halo_L1, v_Halo_L1=propagate_cr3bp_free(s0, t_eval=t_eval)
+    s0=np.concatenate((r0, v0), axis=None)
+    sol=propagate_cr3bp_free(s0, t_eval=t_eval)
     
     for j in range(N_times):
-        C=Jacobi_const(r_Halo_L1[j][0], r_Halo_L1[j][1], r_Halo_L1[j][2], v_Halo_L1[j][0], v_Halo_L1[j][1], v_Halo_L1[j][2])
+        C=Jacobi_const(sol[j][0], sol[j][1], sol[j][2], sol[j][3], sol[j][4], sol[j][5])
         f_out_L1.write("%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\n" \
-                % (r_Halo_L1[j][0], r_Halo_L1[j][1], r_Halo_L1[j][2], v_Halo_L1[j][0], v_Halo_L1[j][1], v_Halo_L1[j][2], C))
+                % (sol[j][0], sol[j][1], sol[j][2], sol[j][3], sol[j][4], sol[j][5], C))
     f_out_L1.write("\n\n")
 f_out_L1.close()
