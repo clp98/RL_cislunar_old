@@ -1,8 +1,12 @@
 #Equations and functions for the moon station keeping problem with RL
 
+#functions: rk4, running_mean, choose_Halo, rv_Halo
+
 import numpy as np
 from random import randint
 from numpy.linalg import norm
+from CR3BP import *
+from rk4 import *
 
 
 #System constants
@@ -44,78 +48,16 @@ def rk4(f, y0, t_eval, data):
     return y
 
 
+#calculates the mean of the state at every step
+def running_mean(self, mean, step, new_value):  
+        
+    new_mean=1./float(step)*((float(step)-1.)*mean+new_value)
+
+    return new_mean
+    
 
 
-def CR3BP(t, s, f, t_1, t_2, ueq): #with control
-    """
-    Right-hand side of the system of equations of motion of a spacecraft
-    in the Earth-Moon circular restricted three body problem (CR3BP),
-    with low thrust terms.
-    The (nondimensional) state components are propagated with respect to the system barycenter in the
-    Earth-Moon rotating reference frame.
-
-    Args:
-        t - (float) time (nondim)
-        s - (np.array) spacecraft state (position, velocity, mass) (nondim) - 7 components (3+3+1)
-        f - (np.array) spacecraft thrust (nondim) - 3 components
-        t_1 - (float) start of thrusting period (nondim)
-        t_2 - (float) end of thrusting period (nondim)
-        ueq - (float) spacecraft equivalent ejection velocity (nondim)
-
-    Return:
-        s_dot - (np.array) derivatives of the spacecraft state (nondim)
-    """
-
-    #State variables
-
-    #spacecraft position
-    x=s[0]
-    y=s[1]
-    z=s[2]
-
-    #spacecraft velocity
-    vx=s[3]
-    vy=s[4]
-    vz=s[5]
-
-    #spacecraft mass
-    m=s[6]
-
-    #Control
-    if t>=t_1 and t<=t_2:
-        fx=f[0]
-        fy=f[1]
-        fz=f[2]
-        f_norm=norm(f)
-    else:
-        fx=0.
-        fy=0.
-        fz=0.
-        f_norm=0.
-
-    #Auxiliary variables
-    r13=sqrt((x+mu)**2+y**2+z**2) #Earth-S/C distance
-    r23=sqrt((x-1.+mu)**2+y**2+z**2) #Moon-S/C distance
-
-    #Equations of motion
-    x_dot=vx
-    y_dot=vy
-    z_dot=vz
-
-    vx_dot=2.*vy+x-(1.-mu)*(x+mu)/(r13**3)-mu*(x-1.+mu)/(r23**3) + fx/m
-    vy_dot=-2.*vx+y-(1.-mu)*y/(r13**3)-mu*y/(r23**3) + fy/m
-    vz_dot=-(1.-mu)*z/(r13**3)-mu*z/(r23**3) + fz/m
-
-    m_dot=-f_norm/ueq
-
-    s_dot=np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot, m_dot]) #output of CR3BP - 7 components (3+3+1)
-
-    return s_dot
-
-
-
-
-#This function chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit   
+#chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
 def choose_Halo(filename, single_matrix):
     with open(filename, 'r') as f:
         lines=f.readlines()
@@ -136,3 +78,26 @@ def choose_Halo(filename, single_matrix):
 
     return r0, v0
     
+
+
+
+#obtain r_Halo and v_Halo vectors of the reference Halo orbit
+def rv_Halo(r0,v0, t0, tf, num_steps):
+
+    t_eval=np.linspace(t0, tf, num_steps) 
+    y0=np.concatenate((r0,v0),axis=None)
+
+    r_Halo=[r0]
+    v_Halo=[v0]
+    data=()
+    
+    for i in len(t_eval-1):
+        t_span=[t_eval[i],t_eval[i+1]]
+        sol=rk4_prec(CR3BP_equations_free, y0, t_span[0], t_span[1], 1e-7, data)
+        r_Halo_new=np.array([sol[0],sol[1],sol[2]])
+        v_Halo_new=np.array([sol[3],sol[4],sol[5]])
+        r_Halo.append(r_Halo_new)
+        v_Halo.append(v_Halo_new)
+        y0=sol
+
+    return r_Halo, v_Halo

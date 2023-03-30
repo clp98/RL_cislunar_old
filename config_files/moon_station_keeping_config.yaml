@@ -1,6 +1,6 @@
 run: ppo  #algorithm used
 stop:
-    training_iterations: 100  #maximum number of gym iterations
+    training_iterations: 2500  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
    -dist_r
@@ -73,16 +73,19 @@ config:  #all the data necessary (it permits to work in parallel)
     vf_clip_param: 1.
     env: environment.moon_station_keeping_env.Moon_Station_Keeping
 
-######################################################################
+    callbacks:
+        epsConstraintCallbacks
 
-env_config:  
-    filename: /home/carlo/RL_cislunar/Halo_L1_rv
-    single_matrix: False
-    num_iter: 100  #number of iterations
-    Isp: 3000 #specific impulse
-    c_star: 2500  #engine characteristic velocity
-    tf: 1000  #maximum duration of the mission
-    Fmax: 0.04  #maximum thrust of the engine
-    m_sc: 1  #initial mass of the spacecraft
-    #t_1:  #starting time of thrust
-    #t_2:  #end time of thrust
+
+    env_config:  
+        filename: /home/carlo/RL_cislunar/Halo_L1_rv
+        single_matrix: False
+        eps_schedule: [[0,1],[2500,1.0e-03]]  #2500 is equal to training_iterations
+        num_steps: 100  #number of iterations
+        Isp: 3000 #specific impulse
+        #c_star: 2500  #engine characteristic velocity
+        tf: 1000  #maximum duration of the mission
+        Fmax: 0.04  #maximum thrust of the engine
+        m_sc: 1  #initial mass of the spacecraft
+        #t_1:  #starting time of thrust
+        #t_2:  #end time of thrust

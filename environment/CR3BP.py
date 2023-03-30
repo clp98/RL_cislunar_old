@@ -10,15 +10,14 @@ from numpy import sqrt
 from numpy.linalg import norm
 
 
-#fundamental constants
+#important constants
 mu=0.012141736 #mass ratio (m2/(m2+m1)), []
 l_star=385000 #system chracteristic length, [km]
 t_star=3.751903e+5 #system characteristic time, [s]
 v_star=l_star/t_star #system characteristic velocity, [km/s]
 
 
-
-def CR3BP_equations_controlled(t, state, F,  t_F_i, t_F_f, Isp):  #with control
+def CR3BP_equations_controlled(t, state, state_dot, data):  #with control
     '''
     input: -t (time)
            -state
@@ -47,42 +46,37 @@ def CR3BP_equations_controlled(t, state, F,  t_F_i, t_F_f, Isp):  #with control
     m=state[6]
 
 
-    #control
-    if t>=t_F_i and t<=t_F_f:
-        Fx=F[0]
-        Fy=F[1]
-        Fz=F[2]
-        F_mod=norm(F)
-    else:
-        Fx=0
-        Fy=0
-        Fz=0
-        F_mod=0
+    #control (constant)
+    Fx=data[0]
+    Fy=data[1]
+    Fz=data[2]
+    F_mod=norm(np.array([Fx,Fy,Fz]))
+
+    Isp=data[3]
+    
     
     #additional quantities
     r13=sqrt((x+mu)**2+y**2+z**2) #earth-sc distance
     r23=sqrt((x-(1-mu))**2+y**2+z**2) #moon-sc distance
 
     #obtain derivative of the state
-    x_dot=vx
-    y_dot=vy
-    z_dot=vz
+    state_dot[0]=vx
+    state_dot[1]=vy
+    state_dot[2]=vz
 
-    vx_dot=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3) + Fx/m
-    vy_dot=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3) + Fy/m
-    vz_dot=z*((-(1-mu)/(r13**3))+(-mu/(r23**3))) + Fz/m
+    state_dot[3]=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3) + Fx/m
+    state_dot[4]=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3) + Fy/m
+    state_dot[5]=z*((-(1-mu)/(r13**3))+(-mu/(r23**3))) + Fz/m
 
-    m_dot=-F_mod/Isp
+    state_dot[6]=-F_mod/Isp
 
 
-    state_dot=np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot, m_dot])
-
-    return state_dot
+    
 
 
 
 
-def CR3BP_equations_free(t, state):  #without control
+def CR3BP_equations_free(t, state, state_dot, data):  #without control
     '''
     input: -t (time)
            -state
@@ -103,24 +97,20 @@ def CR3BP_equations_free(t, state):  #without control
     vy=state[4]
     vz=state[5]
 
-    
     #additional quantities
     r13=sqrt((x+mu)**2+y**2+z**2) #earth-sc distance
     r23=sqrt((x-(1-mu))**2+y**2+z**2) #moon-sc distance
 
     #obtain derivative of the state
-    x_dot=vx
-    y_dot=vy
-    z_dot=vz
+    state_dot[0]=vx
+    state_dot[1]=vy
+    state_dot[2]=vz
 
-    vx_dot=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3)
-    vy_dot=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3)
-    vz_dot=z*((-(1-mu)/(r13**3))+(-mu/(r23**3)))
+    state_dot[3]=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3)
+    state_dot[4]=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3)
+    state_dot[5]=z*((-(1-mu)/(r13**3))+(-mu/(r23**3)))
 
 
-    state_dot=np.array([x_dot, y_dot, z_dot, vx_dot, vy_dot, vz_dot])
-
-    return state_dot
 
 
 
