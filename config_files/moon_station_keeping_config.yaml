@@ -3,25 +3,26 @@ stop:
     training_iterations: 2500  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
-   -dist_r
-   -dist_v
+   - dist_r
+   - dist_v
    
 postproc_data:
     episode_step_data:  #data we want after every step
-       -t
-       -x
-       -y
-       -z
-       -vx
-       -vy
-       -vz
-       -m
-       -F_mod
-       -dist_r
-       -dist_v
-    episode_end_data:  #data we want only at the end
-       -dist_r
-       -dist_v
+       - x
+       - y
+       - z
+       - vx
+       - vy
+       - vz
+       - m
+       - t
+       - Fx
+       - Fy
+       - Fz
+       - F_mod
+       - dist_r
+       - dist_v
+    
 
 num_eval_episodes: 1
 eval_env_config:
@@ -63,29 +64,27 @@ config:  #all the data necessary (it permits to work in parallel)
     use_gae: True
     lambda: 1.
     kl_coeff: 0.
-    sgd_minibatch_size: 
+    sgd_minibatch_size: 3000
     shuffle_sequences: True
-    num_sgd_iter:
-    alpha: 10.e-4  #learning rate of the network
+    num_sgd_iter: 50
+    lr: 10.e-4  #learning rate of the network
     lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]]
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 1.
-    env: environment.moon_station_keeping_env.Moon_Station_Keeping
-
+    env: environment.moon_station_keeping_env.Moon_Station_Keeping 
     callbacks:
         epsConstraintCallbacks
 
 
+
     env_config:  
-        filename: /home/carlo/RL_cislunar/Halo_L1_rv
-        single_matrix: False
+        filename: /home/carlo/RL_cislunar/Halo_L1_rv.txt
         eps_schedule: [[0,1],[2500,1.0e-03]]  #2500 is equal to training_iterations
         num_steps: 100  #number of iterations
         Isp: 3000 #specific impulse
-        #c_star: 2500  #engine characteristic velocity
         tf: 1000  #maximum duration of the mission
         Fmax: 0.04  #maximum thrust of the engine
         m_sc: 1  #initial mass of the spacecraft
-        #t_1:  #starting time of thrust
-        #t_2:  #end time of thrust
+        w: 0.2  #weight of the mass reward
+        single_matrix: True

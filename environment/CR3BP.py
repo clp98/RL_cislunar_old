@@ -46,7 +46,7 @@ def CR3BP_equations_controlled(t, state, state_dot, data):  #with control
     m=state[6]
 
 
-    #control (constant)
+    #control (assumed to be constant)
     Fx=data[0]
     Fy=data[1]
     Fz=data[2]

@@ -25,12 +25,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         #observations: x, y, z, vx, vy, vz, m, t, dist_r, dist_v
         #actions: Fx, Fy, Fz, Fmod
 
-        #obtain randomly the L1 Halo initial conditions
-        self.r0,self.v0=choose_Halo('/home/carlo/RL_cislunar/Halo_L1_rv', single_matrix=False)
 
         #class attributes
-        self.r0=np.array(self.r0)
-        self.v0=np.array(self.v0)
         self.ueq=self.Isp*g0/v_star  #equivalent flux velocity
         self.dt=self.tf/float(self.num_steps)  #time step dt
        
@@ -73,7 +69,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
     def get_control(self, state, action):  #get the control thrust F
 
         Fmod=0.5*(action[-1]+1.)*self.Fmax
-        F_vect=action[:2]
+        F_vect=action[:3]
         F=Fmod*((F_vect)/norm(F_vect))
 
         return F
@@ -93,8 +89,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         solution_int=rk4_prec(CR3BP_equations_controlled, s, t_span[0], t_span[1], 1e-7, data)  #obtain the solution by integration (CR3BP) 
         
         self.success=True
-        state_next={'x':solution_int[0], 'y':solution_int[1], 'z':solution_int[2], \
-                    'vx':solution_int[3], 'vy':solution_int[4], 'vz':solution_int[5], \
+
+        state_next={'r':solution_int[0:3], 'v':solution_int[3:6],\
                     'm':solution_int[6], 't':t_span[-1], 'step':state['step']+1}  #next state
         
         return state_next
@@ -107,35 +103,28 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         
         done=False  #episode not ended yet
         
-        x=state[0]
-        y=state[1]
-        z=state[2]
-        r_vect=np.array([x,y,z])
-        r=norm(r_vect,2)
-
-        vx=state[3]
-        vy=state[4]
-        vz=state[5]
-        v_vect=np.array([vx,vy,vz])
-        v=norm(v_vect,2)
+        r=state['r']
+        v=state['v']
         
         delta_r=norm(r-self.r_Halo[state['step']])  #error in distance
         delta_v=norm(v-self.v_Halo[state['step']])  #error in velocity
 
         state['dist_r']=delta_r
         state['dist_v']=delta_v
-        self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])
-        self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])
+
+        self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
+        self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
         delta_s=abs(max(delta_r,delta_v)-self.epsilon)
-        delta_m=state['m']-state_prev['m']
-        w=0.2  #weight of mass reward
+        delta_m=state_prev['m']-state['m']
 
-        reward=-(delta_s+w*delta_m)  #reward function definition
+        reward=-(delta_s+self.w*delta_m)  #reward function definition
         
         if state['step']==self.num_steps:
             done=True
         if self.success is False:
+            done=True
+        if delta_r>=100.:
             done=True
         
         return reward, done
@@ -149,9 +138,6 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         if done is False:  #episode not ended yet
  
-            info['episode_step_data']['r']=[state_prev['r']]
-            info['episode_step_data']['v']=[state_prev['v']]
-
             info['episode_step_data']['x']=[state_prev['r'][0]]
             info['episode_step_data']['y']=[state_prev['r'][1]]
             info['episode_step_data']['z']=[state_prev['r'][2]]
@@ -160,6 +146,10 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_step_data']['vz']=[state_prev['v'][2]]
             info['episode_step_data']['m']=[state_prev['m']]
             info['episode_step_data']['t']=[state_prev['t']]
+            info['episode_step_data']['Fx']=[state_prev['Fx']] 
+            info['episode_step_data']['Fy']=[state_prev['Fy']]
+            info['episode_step_data']['Fz']=[state_prev['Fz']]
+            info['episode_step_data']['F_mod']=[state_prev['F_mod']]
             info['episode_step_data']['dist_r']=[state_prev['dist_r']]
             info['episode_step_data']['dist_v']=[state_prev['dist_v']]
 
@@ -167,8 +157,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_end_data']={}
             info['custom_metrics']={}
 
-            info['custom_metrics']['dist_r']=state['dist_r']
-            info['custom_metrics']['dist_v']=state['dist_v']
+            info['custom_metrics']['dist_r']=self.dist_r_mean
+            info['custom_metrics']['dist_v']=self.dist_v_mean
 
             info['episode_step_data']['x'].append(state['x'])
             info['episode_step_data']['y'].append(state['y'])
@@ -178,6 +168,10 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_step_data']['vz'].append(state['vz'])
             info['episode_step_data']['m'].append(state['m'])
             info['episode_step_data']['t'].append(state['t'])
+            info['episode_step_data']['Fx'].append(state['Fx'])
+            info['episode_step_data']['Fy'].append(state['Fy'])
+            info['episode_step_data']['Fz'].append(state['Fz'])
+            info['episode_step_data']['F_mod'].append(state['F_mod'])
             info['episode_step_data']['dist_r'].append(state['dist_r'])
             info['episode_step_data']['dist_v'].append(state['dist_v'])
             
@@ -190,7 +184,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
     def reset(self):  #reinitialize the process
 
         self.state={}
-        self.state['step']=0.
+        self.state['step']=0
         self.state['t']=0.
         self.state['m']=self.m_sc
         self.state['dist_r']=0.
@@ -199,11 +193,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_v_mean=0.
         control=0.
         
-        self.r0, self.v0= choose_Halo(self.filename, self.single_matrix)
+        self.r0, self.v0=choose_Halo(self.filename, self.single_matrix)
         self.state['r']=self.r0
         self.state['v']=self.v0
 
-        self.r_Halo,self.v_Halo=rv_Halo(self.r0,self.v0,0,self.tf,self.num_steps)  #recall rv_Halo function to obtain reference Halo position and velocity
+        self.r_Halo,self.v_Halo=rv_Halo(self.r0, self.v0, 0, self.tf, self.num_steps)  #recall rv_Halo function to obtain reference Halo position and velocity
 
         observation=self.get_observation(self.state, control)  #first observation to be returned as output
 
