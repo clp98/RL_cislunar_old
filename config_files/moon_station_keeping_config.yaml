@@ -88,3 +88,4 @@ config:  #all the data necessary (it permits to work in parallel)
         m_sc: 1  #initial mass of the spacecraft
         w: 0.2  #weight of the mass reward
         single_matrix: True
+        error_initial_position: False

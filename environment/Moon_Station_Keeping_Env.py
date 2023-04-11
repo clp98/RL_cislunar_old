@@ -3,7 +3,7 @@
 
 import gym
 from gym import spaces
-from pyrlprob.mdp import AbstractMDP
+from pyrlprob.mdp import AbstractMDP  #from pyrlprob.mdp import..
 
 import numpy as np
 from numpy.linalg import norm
@@ -12,7 +12,7 @@ from numpy import sqrt
 from environment.equations import *
 from environment.constants import *
 from environment.CR3BP import *
-from rk4 import *
+from environment.rk4 import *
 
 
 class Moon_Station_Keeping_Env(AbstractMDP):
@@ -124,7 +124,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             done=True
         if self.success is False:
             done=True
-        if delta_r>=100.:
+        if delta_r>=20.:  #spacecraft fuori dal tubo di traiettoria di raggio 20 km
             done=True
         
         return reward, done
@@ -193,6 +193,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_v_mean=0.
         control=0.
         
+    
         self.r0, self.v0=choose_Halo(self.filename, self.single_matrix)
         self.state['r']=self.r0
         self.state['v']=self.v0
