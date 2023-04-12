@@ -5,8 +5,8 @@
 import numpy as np
 from random import randint
 from numpy.linalg import norm
-from CR3BP import *
-from rk4 import *
+from environment.CR3BP import *
+from environment.rk4 import *
 
 
 #System constants

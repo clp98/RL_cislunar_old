@@ -43,7 +43,7 @@ config:  #all the data necessary (it permits to work in parallel)
         fcnet_hiddens: [70,46,30]  #numero di layer (2) e numero di neuroni per layer (64)
         fcnet_activation: tanh  #activation function used
         use_lstm: False
-        vf_share_layers: False  #False-->rete separata
+        vf_share_layers: False  #False --> rete separata
         free_log_std: True
     gamma: 1.
     log_level: INFO
@@ -72,7 +72,7 @@ config:  #all the data necessary (it permits to work in parallel)
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 1.
-    env: environment.moon_station_keeping_env.Moon_Station_Keeping 
+    env: Moon_Station_Keeping_Env
     callbacks:
         epsConstraintCallbacks
 
