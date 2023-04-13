@@ -1,6 +1,6 @@
 #Equations and functions for the moon station keeping problem with RL
 
-#functions: rk4, running_mean, choose_Halo, rv_Halo
+#functions: running_mean, choose_Halo, rv_Halo
 
 import numpy as np
 from random import randint
@@ -17,35 +17,6 @@ t_star=3.751903e+5 #system characteristic time [s]
 v_star=l_star/t_star #system characteristic velocity [km/s]
 g0=9.80665e-3 #sea-level gravitational acceleration [km/s^2]
 
-
-#Runge-kutta integration method
-def rk4(f, y0, t_eval, data):
-
-    n_eq=len(y0)
-    t0=t_eval[0]
-    dt=t_eval[1]-t_eval[0]
-
-    f0=np.zeros(n_eq)
-    f(t0, y0, f0, data)
-    
-    t1=t0+dt/2.0
-    y1=y0+dt*f0/2.0
-    f1=np.zeros(n_eq)
-    f(t1, y1, f1, data)
-    
-    t2=t0+dt/2.0
-    y2=y0+dt*f1/2.0
-    f2=np.zeros(n_eq)
-    f(t2, y2, f2, data)
-    
-    t3=t0+dt	
-    y3=y0+dt*f2
-    f3=np.zeros(n_eq)
-    f(t3, y3, f3, data)
-    
-    y=y0+dt*(f0+2.0*f1+2.0*f2+f3)/6.0
-
-    return y
 
 
 #calculates the mean of the state at every step

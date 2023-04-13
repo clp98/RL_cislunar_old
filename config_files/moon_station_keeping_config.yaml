@@ -1,5 +1,5 @@
 run: ppo  #algorithm used
-stop:
+stop:  #all the criterias to stop the training
     training_iterations: 2500  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
@@ -24,61 +24,61 @@ postproc_data:
        - dist_v
     
 
-num_eval_episodes: 1
+num_eval_episodes: 1  #number od episodes to evaluate with Monte Carlo
 eval_env_config:
     env_config:
-        prng_seed: 0
+        prng_seed: 0  #seed of random numbers
 
-config:  #all the data necessary (it permits to work in parallel)
-    num_workers: 10
-    num_envs_per_worker: 6
-    num_gpus: 0
-    num_cpus_per_worker: 0.6
-    num_gpus_per_worker: 0
-    num_cpus_for_driver: 2
+config:  #all the data necessary requested by Ray library   (driver = cio che fa l'update della rete)
+    num_workers: 10  #number of copies of the network
+    num_envs_per_worker: 6  #number of environments
+    num_gpus: 1  #number of gpu
+    num_cpus_per_worker: 0.6  #number of cpu
+    num_gpus_per_worker: 0  #number of gpu
+    num_cpus_for_driver: 2  #number of cpu per driver
     rollout_fragment_length: 100
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
     train_batch_size: 30000  #step complessivi di tutti i worker di tutti gli environment
     model:  #definisce la rete neurale
-        fcnet_hiddens: [70,46,30]  #numero di layer (2) e numero di neuroni per layer (64)
+        fcnet_hiddens: [70,46,30]  #numero di layer, numero di neuroni per layer, 
         fcnet_activation: tanh  #activation function used
         use_lstm: False
-        vf_share_layers: False  #False --> rete separata
-        free_log_std: True
-    gamma: 1.
-    log_level: INFO
-    framework: tf
-    explore: True
-    ignore_worker_failures: True
-    evaluation_parallel_to_training: True
-    evaluation_interval: 1
-    evaluation_duration: 1
+        vf_share_layers: False  #False --> rete separata (vf=value function)
+        free_log_std: True  #True --> valori separati dalla rete
+    gamma: 1.  #discount factor
+    log_level: INFO  #che info voglio sia stampata a schermo
+    framework: tf  #framework usato (tensorflow)
+    explore: True  #esplorazione durante l'allenamento
+    ignore_worker_failures: True  #ignora i worker che falliscono e non ferma l'allenamento
+    evaluation_parallel_to_training: True  #valutazione in parallelo
+    evaluation_interval: 1  #intervallo di valutazione
+    evaluation_duration: 1  #durata della valutazione
     evaluation_duration_unit: episodes
-    evaluation_config:
-        explore: False
+    evaluation_config:  #config della valutazione
+        explore: False  #esplorazione
         env_config:
-            eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]
-    evaluation_num_workers: 0
+            eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]  #epsilon law parameters
+    evaluation_num_workers: 0  #number of workers per valutazione
     always_attach_evaluation_results: True
     use_critic: True
     use_gae: True
     lambda: 1.
     kl_coeff: 0.
-    sgd_minibatch_size: 3000
+    sgd_minibatch_size: 3000  #grandezza batch per gradient descent
     shuffle_sequences: True
-    num_sgd_iter: 50
-    lr: 10.e-4  #learning rate of the network
-    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]]
+    num_sgd_iter: 50  #quante iterazioni di gradient descent
+    lr: 1.0e-04  #learning rate of the network = alpha
+    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]] 
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 1.
-    env: Moon_Station_Keeping_Env
+    env: Moon_Station_Keeping_Env  #which is the environment
     callbacks:
         epsConstraintCallbacks
 
 
 
-    env_config:  
+    env_config:  #dictionary with all values that represent the environment
         filename: /home/carlo/RL_cislunar/Halo_L1_rv.txt
         eps_schedule: [[0,1],[2500,1.0e-03]]  #2500 is equal to training_iterations
         num_steps: 100  #number of iterations
@@ -87,5 +87,5 @@ config:  #all the data necessary (it permits to work in parallel)
         Fmax: 0.04  #maximum thrust of the engine
         m_sc: 1  #initial mass of the spacecraft
         w: 0.2  #weight of the mass reward
-        single_matrix: True
-        error_initial_position: False
+        single_matrix: True  #extract only from first matrix (see extract.txt)
+        error_initial_position: False  #error on spacecraft initial position
