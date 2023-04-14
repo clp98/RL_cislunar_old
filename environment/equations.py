@@ -62,7 +62,7 @@ def rv_Halo(r0,v0, t0, tf, num_steps):
     v_Halo=[v0]
     data=()
     
-    for i in len(t_eval-1):
+    for i in range(len(t_eval-1)):
         t_span=[t_eval[i],t_eval[i+1]]
         sol=rk4_prec(CR3BP_equations_free, y0, t_span[0], t_span[1], 1e-7, data)
         r_Halo_new=np.array([sol[0],sol[1],sol[2]])

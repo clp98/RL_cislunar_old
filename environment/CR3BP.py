@@ -99,8 +99,8 @@ def CR3BP_equations_free(t, state, state_dot, data):  #without control
     vz=state[5]
 
     #additional quantities
-    r13=sqrt((x+mu)**2+y**2+z**2) #earth-sc distance
-    r23=sqrt((x-(1-mu))**2+y**2+z**2) #moon-sc distance
+    r13=sqrt((x+mu)**2+y**2+z**2)  #earth-sc distance
+    r23=sqrt((x-(1-mu))**2+y**2+z**2)  #moon-sc distance
 
     #obtain derivative of the state
     state_dot[0]=vx

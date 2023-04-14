@@ -32,7 +32,7 @@ eval_env_config:
 config:  #all the data necessary requested by Ray library   (driver = cio che fa l'update della rete)
     num_workers: 10  #number of copies of the network
     num_envs_per_worker: 6  #number of environments
-    num_gpus: 1  #number of gpu
+    num_gpus: 0  #number of gpu
     num_cpus_per_worker: 0.6  #number of cpu
     num_gpus_per_worker: 0  #number of gpu
     num_cpus_for_driver: 2  #number of cpu per driver
@@ -52,17 +52,15 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     ignore_worker_failures: True  #ignora i worker che falliscono e non ferma l'allenamento
     evaluation_parallel_to_training: True  #valutazione in parallelo
     evaluation_interval: 1  #intervallo di valutazione
-    evaluation_duration: 1  #durata della valutazione
-    evaluation_duration_unit: episodes
+    evaluation_num_episodes: 1  #durata della valutazione
     evaluation_config:  #config della valutazione
         explore: False  #esplorazione
         env_config:
             eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]  #epsilon law parameters
     evaluation_num_workers: 0  #number of workers per valutazione
-    always_attach_evaluation_results: True
     use_critic: True
     use_gae: True
-    lambda: 1.
+    lambda: 1.  #discount factor (=[0,1])
     kl_coeff: 0.
     sgd_minibatch_size: 3000  #grandezza batch per gradient descent
     shuffle_sequences: True
@@ -72,7 +70,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 1.
-    env: Moon_Station_Keeping_Env  #which is the environment
+    env: environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env  #which is the environment
     callbacks:
         epsConstraintCallbacks
 
@@ -85,7 +83,9 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
         Isp: 3000 #specific impulse
         tf: 1000  #maximum duration of the mission
         Fmax: 0.04  #maximum thrust of the engine
-        m_sc: 1  #initial mass of the spacecraft
+        m_sc: 1.  #initial mass of the spacecraft
+        A_sc: 0.1
         w: 0.2  #weight of the mass reward
         single_matrix: True  #extract only from first matrix (see extract.txt)
         error_initial_position: False  #error on spacecraft initial position
+        with_srp: True  #solar radiation pressure

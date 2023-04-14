@@ -3,14 +3,13 @@
 
 import gym
 from gym import spaces
-from pyrlprob.mdp import AbstractMDP  #from pyrlprob.mdp import..
+from pyrlprob.mdp import AbstractMDP
 
 import numpy as np
 from numpy.linalg import norm
 from numpy import sqrt
 
 from environment.equations import *
-from environment.constants import *
 from environment.CR3BP import *
 from environment.rk4 import *
 
@@ -30,8 +29,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.ueq=self.Isp*g0/v_star  #equivalent flux velocity
         self.dt=self.tf/float(self.num_steps)  #time step dt
        
-        self.num_obs=10.  #number of observations
-        self.num_act=4.  #number of actions
+        self.num_obs=10  #number of observations
+        self.num_act=4  #number of actions
         self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))
         self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))
         
@@ -77,7 +76,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
 
-    def next_state(self, state, control, dt):  #propagate the state
+    def next_state(self, state, control, dt):  #propagate the state 
 
         s=np.array(state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], \
@@ -203,5 +202,4 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         observation=self.get_observation(self.state, control)  #first observation to be returned as output
 
         return observation
-
 
