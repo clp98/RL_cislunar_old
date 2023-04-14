@@ -67,7 +67,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
     def get_control(self, state, action):  #get the control thrust F
 
-        Fmod=0.5*(action[-1]+1.)*self.Fmax
+        Fmod=0.5*(action[3]+1.)*self.Fmax
         F_vect=action[:3]
         F=Fmod*((F_vect)/norm(F_vect))
 

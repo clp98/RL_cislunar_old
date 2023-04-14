@@ -31,10 +31,13 @@ def running_mean(self, mean, step, new_value):
 #chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
 def choose_Halo(filename, single_matrix):
     with open(filename, 'r') as f:
+        line=f.readline()
         lines=f.readlines()
         rv_matrix=[]
         for line in lines:
-            rv_matrix.append(line.split(' '))
+            line = line.split()
+            rv_matrix.append(np.array(line).astype(np.float64))
+        #print(rv_matrix)
 
     k=randint(2,101)
     i=randint(1,245)  #select a random matrix 
@@ -63,7 +66,7 @@ def rv_Halo(r0,v0, t0, tf, num_steps):
     data=()
     
     for i in range(len(t_eval-1)):
-        t_span=[t_eval[i],t_eval[i+1]]
+        t_span=[t_eval[i-1],t_eval[i]]  #modificato ma da controlare!!! prima era t_span=[t_eval[i],t_eval[i+1]] 
         sol=rk4_prec(CR3BP_equations_free, y0, t_span[0], t_span[1], 1e-7, data)
         r_Halo_new=np.array([sol[0],sol[1],sol[2]])
         v_Halo_new=np.array([sol[3],sol[4],sol[5]])
