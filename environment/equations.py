@@ -20,7 +20,7 @@ g0=9.80665e-3 #sea-level gravitational acceleration [km/s^2]
 
 
 #calculates the mean of the state at every step
-def running_mean(self, mean, step, new_value):  
+def running_mean(mean, step, new_value):  
         
     new_mean=1./float(step)*((float(step)-1.)*mean+new_value)
 
@@ -35,18 +35,19 @@ def choose_Halo(filename, single_matrix):
         lines=f.readlines()
         rv_matrix=[]
         for line in lines:
-            line = line.split()
-            rv_matrix.append(np.array(line).astype(np.float64))
-        #print(rv_matrix)
-
-    k=randint(2,101)
-    i=randint(1,245)  #select a random matrix 
+            line_split = line.split()
+            if len(line_split) > 0:
+                vec = np.array(line_split).astype(np.float64)
+                rv_matrix.append(vec)
+    
+    k=randint(1,101)
+    i=randint(0,247)  #select a random matrix 
     if single_matrix:  #extract only from the first matrix (Halo-1)
         r0=np.array(rv_matrix[k][0:3])  #initial position
         v0=np.array(rv_matrix[k][3:6])  #initial velocity
 
     else:  #extract from any of the matrices (Halo-j)
-        j=102*i+k
+        j=101*i+k
         r0=np.array(rv_matrix[j][0:3])  #initial position
         v0=np.array(rv_matrix[j][3:6])  #initial velocity
 
@@ -56,17 +57,17 @@ def choose_Halo(filename, single_matrix):
 
 
 #obtain r_Halo and v_Halo vectors of the reference Halo orbit
-def rv_Halo(r0,v0, t0, tf, num_steps):
+def rv_Halo(r0, v0, t0, tf, num_steps):
 
-    t_eval=np.linspace(t0, tf, num_steps) 
-    y0=np.concatenate((r0,v0),axis=None)
+    t_eval=np.linspace(t0, tf, num_steps+1) 
+    y0=np.concatenate((r0,v0), axis=None)
 
     r_Halo=[r0]
     v_Halo=[v0]
     data=()
     
-    for i in range(len(t_eval-1)):
-        t_span=[t_eval[i-1],t_eval[i]]  #modificato ma da controlare!!! prima era t_span=[t_eval[i],t_eval[i+1]] 
+    for i in range(len(t_eval)-1):
+        t_span=[t_eval[i],t_eval[i+1]] 
         sol=rk4_prec(CR3BP_equations_free, y0, t_span[0], t_span[1], 1e-7, data)
         r_Halo_new=np.array([sol[0],sol[1],sol[2]])
         v_Halo_new=np.array([sol[3],sol[4],sol[5]])

@@ -6,7 +6,7 @@ import sys
 import time
 import numpy as np
 from numpy.linalg import norm
-from environment.LOR_RL_cislunar.CR3BP import propagate_cr3bp_free, Jacobi_const
+from LOR_RL_cislunar.LOR_RL_cislunar.CR3BP import propagate_cr3bp_free, Jacobi_const
 
 #initialize vectors
 x_Halo_L1=[]
@@ -46,17 +46,14 @@ with open('PO_files/l1_halo_north.txt', "r") as file_L1:
 file_L1.close()
 
 #Create file txt with Halo orbits
-f_out_L1=open('Halo_L1_rv', "w")
-f_out_L2=open('Halo_L2_rv', "w")
+f_out_L1=open('Halo_L1_rv.txt', "w")
 f_out_L1.write("%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\n" \
     % ("x", "y", "z", "vx", "vy", "vz", "C"))
-f_out_L2.write("%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\n" \
-    % ("x", "y", "z", "vx", "vy", "vz", "C"))
 
 
-##Orbital Propagation
-N_orbits=len(x_Halo_L1)
-N_times=100
+#Orbital Propagation
+N_orbits=len(x_Halo_L1)-1
+N_times=101
 
 #L1 orbit propagation
 for i in range(N_orbits):

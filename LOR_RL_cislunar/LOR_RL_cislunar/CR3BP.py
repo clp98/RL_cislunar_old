@@ -4,7 +4,7 @@ from numpy.linalg import norm
 from scipy.integrate import solve_ivp
 from numbalsoda import lsoda_sig, lsoda
 from numba import njit, cfunc
-from environment.LOR_RL_cislunar.solve_ivp_lsoda import *
+from LOR_RL_cislunar.LOR_RL_cislunar.solve_ivp_lsoda import *
 
 #Constants
 solar_day = 86400 #solar day, s
