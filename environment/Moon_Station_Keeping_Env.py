@@ -1,5 +1,5 @@
 #Environment for the RL station keeping problem for a spacecraft around 
-#the moon orbiting in a Halo orbit around L1
+#the moon orbiting in a Halo orbit around L2
 
 import gym
 from gym import spaces
@@ -13,6 +13,7 @@ from scipy.integrate import solve_ivp
 from environment.equations import *
 from environment.CR3BP import *
 from environment.rk4 import *
+from environment.BER4BP import *
 
 
 class Moon_Station_Keeping_Env(AbstractMDP):
@@ -37,6 +38,9 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         
         self.max_episode_steps=self.num_steps  #maximum number of episodes
         self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
+
+        self.r_Halo_ref=0.83  #approximated r0 of the Halo
+        self.v_Halo_ref=0.13  #approximated v0 of the Halo
 
         #Epsilon Law
         self.iter0 = self.eps_schedule[0][0]
@@ -79,23 +83,36 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
     def next_state(self, state, control, time_step):  #propagate the state 
 
-        s=np.array([state['r'][0], state['r'][1], state['r'][2], \
+
+
+        if CR3BP:  #CR3BP equations of motion
+            s=np.array([state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], \
                        state['m']])  #current state 
 
-        t_span=[state['t'], state['t']+time_step]  #time interval 
+            t_span=[state['t'], state['t']+time_step]  #time interval 
 
-        #data=np.array([control, self.ueq])  #integration data
-        #solution_int=rk4_prec(CR3BP_equations_controlled, s, t_span[0], t_span[1], 1e-7, data)  #obtain the solution by integration (CR3BP) 
-        
-        #Events
-        hitMoon.terminal = True
-        events = (hitMoon)
+            #Events
+            hitMoon.terminal = True
+            events = (hitMoon)
 
-        #Solve equations of motion
-        solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-            args=(control, self.ueq), rtol=1e-7, atol=1e-7)
+            #Solve equations of motion with CR3BP
+            solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
+                args=(control, self.ueq), rtol=1e-7, atol=1e-7)
+            
+        else:  #BER4BP equations of motion
+            s=np.array([state['r'][0], state['r'][1], state['r'][2], \
+                       state['v'][0], state['v'][1], state['v'][2], state['m'], anu_3])  #current state 
+            
+            t_span=[state['t'], state['t']+time_step]
 
+            #Events
+            hitMoon.terminal = True
+            events = (hitMoon)
+
+            #Solve equations of motion with CR3BP
+            solution_int = solve_ivp(fun=BER4BP_3dof, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
+                args=(control, self.ueq), rtol=1e-7, atol=1e-7)
 
 
         self.success=True
@@ -130,20 +147,18 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
         self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
-        delta_s=abs(max(delta_r,delta_v)-self.epsilon)
+        delta_s=max(max(delta_r/self.r_Halo_ref, delta_v/self.v_Halo_ref)-self.epsilon, 0)
         delta_m=prev_state['m']-state['m']
 
         reward=-(delta_s+self.w*delta_m)  #reward function definition
         
-        #reward update
+        #reward update RIFARE!!! CON AUTOVETTORE USCENTE
         #lambda_pos=2.15 #autovalore positivo divergente
         #reward=-(delta_s*lambda_pos+self.w*delta_m)
 
         if state['step']==self.num_steps:
             done=True
         if self.success is False:
-            done=True
-        if delta_r>=20.:  #spacecraft fuori dal tubo di traiettoria di raggio 20 km
             done=True
         
         reward /= 100.
@@ -178,6 +193,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             info['custom_metrics']['dist_r']=self.dist_r_mean
             info['custom_metrics']['dist_v']=self.dist_v_mean
+            info['custom_metrics']['mf']=state['m']
 
             info['episode_step_data']['x'].append(state['r'][0])
             info['episode_step_data']['y'].append(state['r'][1])
