@@ -39,8 +39,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.max_episode_steps=self.num_steps  #maximum number of episodes
         self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
 
-        self.r_Halo_ref=0.83  #approximated r0 of the Halo
-        self.v_Halo_ref=0.13  #approximated v0 of the Halo
+        self.r_Halo_ref=0.83  #approximated r0 of the Halo (taken from the txt)
+        self.v_Halo_ref=0.13  #approximated v0 of the Halo (taken from the txt)
 
         #Epsilon Law
         self.iter0 = self.eps_schedule[0][0]
@@ -85,7 +85,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
 
-        if CR3BP:  #CR3BP equations of motion
+        '''if CR3BP:  #CR3BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], \
                        state['m']])  #current state 
@@ -112,7 +112,22 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             #Solve equations of motion with CR3BP
             solution_int = solve_ivp(fun=BER4BP_3dof, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-                args=(control, self.ueq), rtol=1e-7, atol=1e-7)
+                args=(control, self.ueq), rtol=1e-7, atol=1e-7)'''
+            
+
+        s=np.array([state['r'][0], state['r'][1], state['r'][2], \
+                       state['v'][0], state['v'][1], state['v'][2], \
+                       state['m']])  #current state 
+
+        t_span=[state['t'], state['t']+time_step]  #time interval 
+
+        #Events
+        hitMoon.terminal = True
+        events = (hitMoon)
+
+        #Solve equations of motion with CR3BP
+        solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
+            args=(control, self.ueq), rtol=1e-7, atol=1e-7)
 
 
         self.success=True
@@ -230,17 +245,21 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         
         self.r0, self.v0=choose_Halo(self.filename, self.single_matrix)
 
-        #if error_initial_position:  #error on initial position and velocity is present
-        #    dr0=[2,0,0]
-        #    dv0=[0,0,0]
-        #    self.state['r'] = self.r0 + dr0
-        #    self.state['v'] = self.v0 + dv0
-        #else:  
-        #    self.state['r'] = self.r0
-        #    self.state['v'] = self.v0
+        if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
+            dr0 = np.random.rand(3)  #initial position error vector
+            dv0 = np.random.rand(3)  #initial velocity error vector
+            norm_dr0 = np.linalg.norm(dr0)
+            norm_dv0 = np.linalg.norm(dv0)
+            if norm_dr0/self.r0 < 0.01:
+                self.state['r'] = self.r0 + dr0
+            if norm_dv0/self.v0 < 0.01:
+                self.state['v'] = self.v0 + dv0
+        else:  
+            self.state['r'] = self.r0
+            self.state['v'] = self.v0
 
-        self.state['r'] = self.r0
-        self.state['v'] = self.v0
+        #self.state['r'] = self.r0
+        #self.state['v'] = self.v0
 
         self.r_Halo,self.v_Halo=rv_Halo(self.r0, self.v0, 0, self.tf, self.num_steps)  #recall rv_Halo function to obtain reference Halo position and velocity
 

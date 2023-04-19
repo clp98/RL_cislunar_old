@@ -1,4 +1,4 @@
-import numpy as np
+'''import numpy as np
 from numpy import sqrt, cos, sin
 from random import random
 from numpy.linalg import norm
@@ -18,7 +18,7 @@ m3 = M/(d_ratio**3+1)
 m2 = M-m3
 R_2_d = 0.5*d2                                # Radius of second body, km
 R_3_d = 0.5*d3                                # Radius of third body, km
-SRP_1AU = 4.55987e-06                         # solar radiation pressure at 1AU, Pa                                   # Area of the S/C solar panels, m^2
+SRP_1AU = 4.55987e-06                         # solar radiation pressure at 1AU, Pa
 # Astrodynamics
 solar_day = 86400.                          # one solar day [s]
 AU = 1.495978707e8                          # astronomical unit [km]
@@ -54,33 +54,54 @@ mconv = 1000.                               # Mass [kg]
 fconv = mconv * aconv                       # Force [kN]
 
 
-
-mu_third = GM_3_d  #valori giusti?
+mu_third = GM_3_d 
 mu_sys = GM_2_d + GM_3_d
 sigma_first = (GM_1_d / mu_sys) + 1.
 
+#Non-dimensional quantities
+a_2 = a_2_d / rconv
+a_3 = a_3_d / rconv
+R_2 = R_2_d / rconv
+R_3 = R_3_d / rconv
+mu = GM_3_d / mu_ref_d		                # Gravitational parameter body 3 (non-dimensional)
+sigma = sigma_d / mu_ref_d                  # Total mass ratio
 
-anu_3=random.random(0,180)  #moon (third body) true anomaly choosen randomly (va scalato??)
+# Initial orbital parameters of B around body 1
+COE_B = [a_2, e_2, i_2, OMEGA_2, omega_2]
 
-sun_r0_x =
-sun_r0_y =
-sun_r0_z =
-sun_v0_x =
-sun_v0_y =
-sun_v0_z =
+# Initial orbital parameters of body 3 around body 2
+COE_3 = [a_3, e_3, i_3, OMEGA_3, omega_3]
+
+
+
+anu_3_deg = random.random(0,360)  #moon (third body) true anomaly choosen randomly (va scalato??)
+anu_1_deg = random.random(0,360)  #sun true anomaly choosen randomly
+anu_3=anu_3_deg*conv
+anu_1=anu_1_deg*conv
+
+r_sun = a_2*((1.-e_2**2)/(1.+e_2*cos(anu_1)))
+sun_r0_x = r_sun[0]
+sun_r0_y = r_sun[1]
+sun_r0_z = r_sun[2]
+v_sun = sqrt(GM_1_d*(2./r_sun-1./a_3))
+sun_v0_x = v_sun[0]
+sun_v0_y = v_sun[1]
+sun_v0_z = v_sun[2]
+
 sun_r0 = np.array(sun_r0_x, sun_r0_y, sun_r0_z) 
 sun_v0 = np.array(sun_v0_x, sun_v0_y, sun_v0_z)
 
 
 ################################################################################################################
 
+#input di BER4BP_3dof da aggiungere
+X0=[s[0], s[1], s[2], s[3], s[4], s[5], self.m_SC, anu_3]
 
-X0=[s[0], s[1], s[2], s[3], s[4], s[5], anu_3, self.m_SC]
-
-data=[F_vect[0], F_vect[1], F_vect[2], 9.80665e-3*self.Isp, sun_r0[0], sun_r0[1], sun_r0[2], /
-      sun_v0[0], sun_v0[1], sun_v0[2], mu_third, mu_sys, sigma_first, /
-      coe_3[0], coe_3[1], coe_3[2], coe_3[3], coe_3[4], coe_3[5], /
+data=[F_vect[0], F_vect[1], F_vect[2], 9.80665e-3*self.Isp, sun_r0[0], sun_r0[1], sun_r0[2], \
+      sun_v0[0], sun_v0[1], sun_v0[2], mu_third, mu_sys, sigma_first, \
+      COE_3[0], COE_3[1], COE_3[2], COE_3[3], COE_3[4], anu_3, \
       False]
+
 
 def BER4BP_3dof(t, X0, data):
     """ 
@@ -186,3 +207,5 @@ def BER4BP_3dof(t, X0, data):
         anu_3_dot, m_dot], dtype=np.float64)
     
     return X_dot
+
+'''

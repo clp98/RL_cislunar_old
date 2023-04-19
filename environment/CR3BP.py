@@ -122,12 +122,37 @@ def CR3BP_equations_controlled_ivp(t, state, F, ueq):  #with control
     state_dot[1]=vy
     state_dot[2]=vz
 
-    state_dot[3]=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3) + Fx/m
-    state_dot[4]=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3) + Fy/m
-    state_dot[5]=z*((-(1-mu)/(r13**3))+(-mu/(r23**3))) + Fz/m
+    state_dot[3]=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3) + Fx/m #+ f_srp_x/m
+    state_dot[4]=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3) + Fy/m #+ f_srp_y/m
+    state_dot[5]=z*((-(1-mu)/(r13**3))+(-mu/(r23**3))) + Fz/m #+ f_srp_z/m
 
     state_dot[6]=-F_mod/ueq
 
+
+    '''#SRP
+    if with_srp:
+        
+        #propagate sun motion from starting position (propagate_lagrangian), since the vector on which the srp acts is towards
+        #the direction sun-sc!
+
+
+        #Sun-S/C distance in AU
+        r14 = Rt_RTN + r_RTN
+        r14_norm_AU = norm(r14)*rconv/AU
+
+        #SRP at S/C distance
+        srp = SRP_1AU/(r14_norm_AU**2)
+
+        #SRP force
+        f_srp_norm = srp*self.A_sc*1e-03/fconv
+        f_srp_x = f_srp_norm*r14[0]/norm(r14)
+        f_srp_y = f_srp_norm*r14[1]/norm(r14)
+        f_srp_z = f_srp_norm*r14[2]/norm(r14)
+        f_srp = np.array([f_srp_x, f_srp_y, f_srp_z], dtype=np.float64)
+
+    else:
+        f_srp = np.zeros(3, dtype=np.float64)
+'''
     return state_dot
 
 
