@@ -12,6 +12,4 @@ config_file = exp_dir + "/config.yaml"
 UAVProblem = RLProblem(config_file)
 
 #Evaluation and postprocessing
-exp_dirs, last_cps, best_cp_dir = UAVProblem.evaluate(trainer_dir, 
-                                                      exp_dir, 
-                                                      last_cp)
+exp_dirs, last_cps, best_cp_dir = UAVProblem.evaluate(trainer_dir, exp_dir, last_cp)

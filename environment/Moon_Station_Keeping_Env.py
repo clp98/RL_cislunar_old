@@ -246,14 +246,10 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.r0, self.v0=choose_Halo(self.filename, self.single_matrix)
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
-            dr0 = np.random.rand(3)  #initial position error vector
-            dv0 = np.random.rand(3)  #initial velocity error vector
-            norm_dr0 = np.linalg.norm(dr0)
-            norm_dv0 = np.linalg.norm(dv0)
-            if norm_dr0/self.r0 < 0.01:
-                self.state['r'] = self.r0 + dr0
-            if norm_dv0/self.v0 < 0.01:
-                self.state['v'] = self.v0 + dv0
+            dr0 = np.random.uniform(-0.01*norm(self.r0), 0.01*norm(self.r0), 3)  #initial position error vector
+            dv0 = np.random.uniform(-0.01*norm(self.v0), 0.01*norm(self.v0), 3)  #initial velocity error vector
+            self.state['r'] = self.r0 + dr0
+            self.state['v'] = self.v0 + dv0
         else:  
             self.state['r'] = self.r0
             self.state['v'] = self.v0

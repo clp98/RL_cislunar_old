@@ -48,7 +48,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
         free_log_std: True  #True --> valori separati dalla rete
     gamma: 0.999  #discount factor
     log_level: INFO  #che info voglio sia stampata a schermo
-    framework: tf  #framework usato (tensorflow)
+    framework: tf  #framework usato
     explore: True  #esplorazione durante l'allenamento
     ignore_worker_failures: True  #ignora i worker che falliscono e non ferma l'allenamento
     evaluation_parallel_to_training: True  #valutazione in parallelo
@@ -86,10 +86,10 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
         Fmax: 0.04  #maximum thrust of the engine
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1
-        w: 0.2  #weight of the mass reward
+        w: 0.2  #weight of the mass reward part
         #sun_r0: [ , , ]
         #sun_v0: [ , , ]
         CR3BP: True
         single_matrix: True  #extract only from first matrix (see extract.txt)
-        error_initial_position: False  #error on spacecraft initial position
+        error_initial_position: True  #error on spacecraft initial position
         with_srp: False  #solar radiation pressure
