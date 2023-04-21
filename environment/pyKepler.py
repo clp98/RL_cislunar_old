@@ -5,6 +5,17 @@ from numpy.linalg import norm
 from numba import njit
 
 
+
+
+'''def propagate_sun(r0, v0, tof, mu=1.):
+
+
+
+
+
+return r_sun, v_sun'''
+
+
 def sph2cart(r, theta, phi):
     
     x = r*cos(theta)*cos(phi)

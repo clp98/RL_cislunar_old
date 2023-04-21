@@ -106,7 +106,7 @@ config:
         H: 100
         eps_schedule: [[0, 1.0e-03], [2000, 1.0e-03]]
         eta: 0.1
-        fmax: 4.0e-02
+        fmax: 4.0e-02  #adimensional, the dimentional is: fmax[N] = (value) * 2.7307388899605793e-06 [N]
         Isp: 3000.
         tf: 6
         m0: 1

@@ -95,7 +95,7 @@ sun_v0 = np.array(sun_v0_x, sun_v0_y, sun_v0_z)
 ################################################################################################################
 
 #input di BER4BP_3dof da aggiungere
-X0=[s[0], s[1], s[2], s[3], s[4], s[5], self.m_SC, anu_3]
+X0=[state[0], state[1], state[2], state[3], state[4], state[5], self.m_SC, anu_3]
 
 data=[F_vect[0], F_vect[1], F_vect[2], 9.80665e-3*self.Isp, sun_r0[0], sun_r0[1], sun_r0[2], \
       sun_v0[0], sun_v0[1], sun_v0[2], mu_third, mu_sys, sigma_first, \

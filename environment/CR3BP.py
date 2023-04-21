@@ -9,6 +9,7 @@
 import numpy as np
 from numpy import sqrt
 from numpy.linalg import norm
+#from pyKepler import *
 
 
 #important constants
@@ -129,19 +130,22 @@ def CR3BP_equations_controlled_ivp(t, state, F, ueq):  #with control
     state_dot[6]=-F_mod/ueq
 
 
-    '''#SRP
-    if with_srp:
-        
-        #propagate sun motion from starting position (propagate_lagrangian), since the vector on which the srp acts is towards
-        #the direction sun-sc!
+    #SRP disturbance
+    #first let us obtain the position of the sun
+    #sun_r, sun_v = propagate_sun(sun_r0, sun_v0, t, mu_sun)
 
+    
+    '''r_sun, v_sun = propagate_sun(r0_sun, v0_sun, t, mu_sun)
+    r = np.array([x, y, z])
+    r14 = r-r_sun
 
-        #Sun-S/C distance in AU
-        r14 = Rt_RTN + r_RTN
-        r14_norm_AU = norm(r14)*rconv/AU
+    if self.with_srp:
+
+        r14_AU = r14/1.495978707e8  #r14 in AU
+        SRP_1AU = 4.55987e-06  #solar radiation pressure at 1 AU
 
         #SRP at S/C distance
-        srp = SRP_1AU/(r14_norm_AU**2)
+        srp = SRP_1AU/norm(r14_AU)**2
 
         #SRP force
         f_srp_norm = srp*self.A_sc*1e-03/fconv
@@ -151,8 +155,11 @@ def CR3BP_equations_controlled_ivp(t, state, F, ueq):  #with control
         f_srp = np.array([f_srp_x, f_srp_y, f_srp_z], dtype=np.float64)
 
     else:
-        f_srp = np.zeros(3, dtype=np.float64)
-'''
+        f_srp = np.zeros(3, dtype=np.float64)'''
+
+
+
+
     return state_dot
 
 
