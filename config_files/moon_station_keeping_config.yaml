@@ -89,5 +89,5 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
         w: 0.2  #weight of the mass reward part
         CR3BP: True
         single_matrix: True  #extract only from first matrix (see extract.txt)
-        error_initial_position: True  #error on spacecraft initial position
+        error_initial_position: False  #error on spacecraft initial position
         with_srp: False  #solar radiation pressure

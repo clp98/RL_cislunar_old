@@ -7,12 +7,13 @@ from numba import njit, cfunc
 from LOR_RL_cislunar.LOR_RL_cislunar.solve_ivp_lsoda import *
 
 #Constants
-solar_day = 86400 #solar day, s
-mu = 0.01215059 #mass ratio, nondim
-l_star = 3.844e+5 #system characteristic lenght, km
-t_star = 3.751903e+5 #system characteristic time, s
-v_star = l_star/t_star #system characteristic velocity, km/s
-g0 = 9.80665e-3 #sea-level gravitational acceleration, km/s^2
+solar_day = 86400 #solar day, [s]
+mu = 0.01215059 #mass ratio, []
+l_star = 3.844e+5 #system characteristic lenght, [km]
+t_star = 3.751903e+5 #system characteristic time, [s]
+v_star = l_star/t_star #system characteristic velocity, [km/s]
+m_star =  #system characteristic mass, [kg]
+g0 = 9.80665e-3 #sea-level gravitational acceleration, [km/s^2]
 
 
 def CR3BP_eqs(t, s, f, t_1, t_2, ueq): #with control
