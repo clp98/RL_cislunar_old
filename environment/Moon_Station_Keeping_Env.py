@@ -254,10 +254,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.state['r'] = self.r0
             self.state['v'] = self.v0
 
-        #self.state['r'] = self.r0
-        #self.state['v'] = self.v0
-
-        self.r_Halo,self.v_Halo=rv_Halo(self.r0, self.v0, 0, self.tf, self.num_steps)  #recall rv_Halo function to obtain reference Halo position and velocity
+        self.r_Halo,self.v_Halo = rv_Halo(self.r0, self.v0, 0, self.tf, self.num_steps)  #recall rv_Halo function to obtain reference Halo position and velocity
 
         observation=self.get_observation(self.state, control)  #first observation to be returned as output
 

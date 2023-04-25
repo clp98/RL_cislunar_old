@@ -73,20 +73,22 @@ COE_B = [a_2, e_2, i_2, OMEGA_2, omega_2]
 COE_3 = [a_3, e_3, i_3, OMEGA_3, omega_3]
 
 
+#r0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial position vector
+#v0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial velocity vector
 
 anu_3_deg = random.random(0,360)  #moon (third body) true anomaly choosen randomly (va scalato??)
 anu_1_deg = random.random(0,360)  #sun true anomaly choosen randomly
 anu_3=anu_3_deg*conv
 anu_1=anu_1_deg*conv
 
-r_sun = a_2*((1.-e_2**2)/(1.+e_2*cos(anu_1)))
-sun_r0_x = r_sun[0]
-sun_r0_y = r_sun[1]
-sun_r0_z = r_sun[2]
-v_sun = sqrt(GM_1_d*(2./r_sun-1./a_3))
-sun_v0_x = v_sun[0]
-sun_v0_y = v_sun[1]
-sun_v0_z = v_sun[2]
+r0_sun = a_2*((1.-e_2**2)/(1.+e_2*cos(anu_1)))
+sun_r0_x = r0_sun[0]
+sun_r0_y = r0_sun[1]
+sun_r0_z = r0_sun[2]
+v0_sun = sqrt(GM_1_d*(2./r_sun-1./a_3))
+sun_v0_x = v0_sun[0]
+sun_v0_y = v0_sun[1]
+sun_v0_z = v0_sun[2]
 
 sun_r0 = np.array(sun_r0_x, sun_r0_y, sun_r0_z) 
 sun_v0 = np.array(sun_v0_x, sun_v0_y, sun_v0_z)

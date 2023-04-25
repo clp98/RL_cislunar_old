@@ -9,7 +9,7 @@
 import numpy as np
 from numpy import sqrt
 from numpy.linalg import norm
-#from pyKepler import *
+#from environment.pyKepler import *
 
 
 #important constants
@@ -20,6 +20,7 @@ t_star = 3.751903e+5  #system characteristic time, s
 v_star = l_star/t_star  #system characteristic velocity, km/s
 a_star = v_star/t_star  #system characteristic acceleration, km\s^2
 m_star = 1000.  #system characteristic mass, kg
+f_star = m_star*a_star  
 g0 = 9.80665e-3  #sea-level gravitational acceleration, km/s^2
 
 
@@ -133,45 +134,36 @@ def CR3BP_equations_controlled_ivp(t, state, F, ueq):  #with control
 
 
     '''#SRP disturbance
-    #first let us obtain the position of the sun
-    #sun_r, sun_v = propagate_sun(sun_r0, sun_v0, t, mu_sun)
-
-    mu_sun=
-    r0_sun=-
-    v0_sun=
-
-
-    r_sun, v_sun = propagate_sun(r0_sun, v0_sun, t, mu_sun)  #propagate sun orbit
-    r = np.array([x, y, z])
-    r14 = r-r_sun  #obtain the sun-sc position vector
-
     if self.with_srp:
+    
+        mu_sun = 132712440018.
+        r0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial position vector
+        v0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial velocity vector
+
+        r_sun, v_sun = propagate_lagrangian(r0_sun, v0_sun, t, mu_sun)  #propagate sun orbit
+        r = np.array([x, y, z])
+        r14 = r-r_sun  #obtain the sun-sc position vector
     
         r14_AU = r14/1.495978707e8  #r14 in AU
         SRP_1AU = 4.55987e-06  #solar radiation pressure at 1 AU [Pa]
 
-        #SRP at S/C distance
+        #SRP at sc distance
         srp = SRP_1AU/norm(r14_AU)**2
 
         #SRP force
-        f_srp_norm = srp*self.A_sc*1e-03/fconv
+        f_srp_norm = srp*self.A_sc*1e-03/f_star
         f_srp_x = f_srp_norm*r14[0]/norm(r14)
         f_srp_y = f_srp_norm*r14[1]/norm(r14)
         f_srp_z = f_srp_norm*r14[2]/norm(r14)
         f_srp = np.array([f_srp_x, f_srp_y, f_srp_z], dtype=np.float64)
 
     else:
-        f_srp = np.zeros(3, dtype=np.float64)
+        f_srp = np.zeros(3, dtype=np.float64)'''
 
 
 
 
-    return state_dot'''
-
-
-
-
-    
+    return state_dot
 
 
 

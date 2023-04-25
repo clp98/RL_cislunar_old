@@ -77,14 +77,3 @@ def rv_Halo(r0, v0, t0, tf, num_steps):
 
     return r_Halo, v_Halo
 
-
-
-'''def propagate_sun(r0_sun, v0_sun, t, mu_sun):  #VA SPOSTATA!
-    v0rad_sun = np.dot(r0_sun, v0_sun)/norm(r0_sun)  #radial initial velocity of sun
-    a_rec = 2/norm(r0_sun)-pow(norm(v0_sun),2)/mu_sun  #reciprocal of semimajor axis
-    anu = kepler_U(mu_sun,  t,  r0_sun,  v0rad_sun,  a_rec)  #universal anomaly
-    f_sun, g_sun = lagrangefg_kepU(mu_sun, anu, t, r0_sun, a_rec)  #lagrange coefficients f,g
-    r_sun = f_sun*r0_sun+g_sun*v0_sun  #sun position
-    fdot_sun, gdot_sun = lagrangefDotgDot_kepU(mu_sun, anu, norm(r_sun), norm(r0_sun), a_rec)  #lagrange coefficients fdot,gdot
-    v_sun = fdot_sun*r0_sun+gdot_sun*v0_sun  #sun velocity
-    return r_sun, v_sun'''

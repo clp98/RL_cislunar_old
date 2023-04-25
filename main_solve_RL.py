@@ -10,4 +10,3 @@ SKproblem=RLProblem(config_file)
 
 #Solve RL problem
 trainer_dir, exp_dirs, last_cps, best_cp_dir = SKproblem.solve(evaluate=True, postprocess=True, debug=False)
-
