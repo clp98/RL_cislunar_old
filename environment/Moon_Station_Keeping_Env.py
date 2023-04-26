@@ -140,11 +140,34 @@ class Moon_Station_Keeping_Env(AbstractMDP):
                     'm':m_new, 't':solution_int.t[-1], 'step':state['step']+1}  #next state
     
         
-        delta_r=norm(r_new-self.r_Halo[state_next['step']])  #error in distance
-        delta_v=norm(v_new-self.v_Halo[state_next['step']])  #error in velocity
+        
 
-        state_next['dist_r']=delta_r
-        state_next['dist_v']=delta_v
+        if self.dist_r_method:
+
+    
+            #Solve equations of motion with CR3BP
+            s=np.concatenate((r_new, v_new), axis=None)
+            t_span = [state['t'], state['t']+self.T_Halo]
+            sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
+                                        rtol=1e-7, atol=1e-7)
+            
+            r_afterperiod = np.array([sol_afterperiod.y[0][-1], sol_afterperiod.y[1][-1], sol_afterperiod.y[2][-1]])
+            v_afterperiod = np.array([sol_afterperiod.y[3][-1], sol_afterperiod.y[4][-1], sol_afterperiod.y[5][-1]])
+
+            delta_r=norm(r_afterperiod-r_new)  #error in distance
+            delta_v=norm(v_afterperiod-v_new)  #error in velocity
+
+
+        else:
+            delta_r=norm(r_new-self.r_Halo[state_next['step']])  #error in distance
+            delta_v=norm(v_new-self.v_Halo[state_next['step']])  #error in velocity
+
+
+
+
+
+        state_next['dist_r']=delta_r/self.r_Halo_ref
+        state_next['dist_v']=delta_v/self.v_Halo_ref
 
         return state_next
     
@@ -162,7 +185,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
         self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
-        delta_s=max(max(delta_r/self.r_Halo_ref, delta_v/self.v_Halo_ref)-self.epsilon, 0)
+        delta_s=max(max(delta_r, delta_v)-self.epsilon, 0)
         delta_m=prev_state['m']-state['m']
 
         reward=-(delta_s+self.w*delta_m)  #reward function definition
@@ -206,9 +229,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_end_data']={}
             info['custom_metrics']={}
 
-            info['custom_metrics']['dist_r']=self.dist_r_mean
-            info['custom_metrics']['dist_v']=self.dist_v_mean
+            info['custom_metrics']['dist_r_mean']=self.dist_r_mean
+            info['custom_metrics']['dist_v_mean']=self.dist_v_mean 
             info['custom_metrics']['mf']=state['m']
+            info['custom_metrics']['epsilon']=self.epsilon
+
 
             info['episode_step_data']['x'].append(state['r'][0])
             info['episode_step_data']['y'].append(state['r'][1])
@@ -237,22 +262,26 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.state['step']=0
         self.state['t']=0.
         self.state['m']=self.m_sc
-        self.state['dist_r']=0.
-        self.state['dist_v']=0.
-        self.dist_r_mean=0.
-        self.dist_v_mean=0.
         control=0.
         
-        self.r0, self.v0=choose_Halo(self.filename, self.single_matrix)
+        self.r0, self.v0, self.T_Halo=choose_Halo(self.filename, self.single_matrix)
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
             dr0 = np.random.uniform(-0.01*norm(self.r0), 0.01*norm(self.r0), 3)  #initial position error vector
             dv0 = np.random.uniform(-0.01*norm(self.v0), 0.01*norm(self.v0), 3)  #initial velocity error vector
             self.state['r'] = self.r0 + dr0
             self.state['v'] = self.v0 + dv0
+            self.state['dist_r'] = norm(dr0)/self.r_Halo_ref
+            self.state['dist_v'] = norm(dv0)/self.v_Halo_ref
+            self.dist_r_mean = self.state['dist_r']
+            self.dist_v_mean = self.state['dist_v']
         else:  
             self.state['r'] = self.r0
             self.state['v'] = self.v0
+            self.state['dist_r']=0.
+            self.state['dist_v']=0.
+            self.dist_r_mean=0.
+            self.dist_v_mean=0.
 
         self.r_Halo,self.v_Halo = rv_Halo(self.r0, self.v0, 0, self.tf, self.num_steps)  #recall rv_Halo function to obtain reference Halo position and velocity
 

@@ -12,7 +12,7 @@ mu = 0.01215059 #mass ratio, []
 l_star = 3.844e+5 #system characteristic lenght, [km]
 t_star = 3.751903e+5 #system characteristic time, [s]
 v_star = l_star/t_star #system characteristic velocity, [km/s]
-m_star =  #system characteristic mass, [kg]
+m_star = 1000.  #system characteristic mass, [kg]
 g0 = 9.80665e-3 #sea-level gravitational acceleration, [km/s^2]
 
 

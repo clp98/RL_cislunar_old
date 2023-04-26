@@ -73,8 +73,6 @@ COE_B = [a_2, e_2, i_2, OMEGA_2, omega_2]
 COE_3 = [a_3, e_3, i_3, OMEGA_3, omega_3]
 
 
-#r0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial position vector
-#v0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial velocity vector
 
 anu_3_deg = random.random(0,360)  #moon (third body) true anomaly choosen randomly (va scalato??)
 anu_1_deg = random.random(0,360)  #sun true anomaly choosen randomly

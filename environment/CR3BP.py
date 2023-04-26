@@ -137,8 +137,19 @@ def CR3BP_equations_controlled_ivp(t, state, F, ueq):  #with control
     if self.with_srp:
     
         mu_sun = 132712440018.
-        r0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial position vector
-        v0_sun = np.random.uniform(-100000,100000,3)  #choose randomly initial velocity vector
+        anu_3_deg = random.random(0,360)  #moon (third body) true anomaly choosen randomly (va scalato??)
+        anu_1_deg = random.random(0,360)  #sun (first body) true anomaly choosen randomly
+        anu_3=anu_3_deg*conv  #[rad]
+        anu_1=anu_1_deg*conv  #[rad]
+
+        r0_sun = a_2*((1.-e_2**2)/(1.+e_2*cos(anu_1)))
+        v0_sun = sqrt(GM_1_d*(2./r_sun-1./a_3))
+        #sun_r0_x = r0_sun[0]
+        #sun_r0_y = r0_sun[1]
+        #sun_r0_z = r0_sun[2]
+        #sun_v0_x = v0_sun[0]
+        #sun_v0_y = v0_sun[1]
+        #sun_v0_z = v0_sun[2]
 
         r_sun, v_sun = propagate_lagrangian(r0_sun, v0_sun, t, mu_sun)  #propagate sun orbit
         r = np.array([x, y, z])
@@ -246,3 +257,46 @@ def hitMoon(t, y, f, ueq):
     dist = norm(r - rMoon) - min_r
 
     return dist
+
+
+
+def CR3BP_equations_ivp(t, state):  #with control
+    '''
+    input: -t (time)
+           -state
+           -F (thrust)
+           -t_F_i (start of thrusting period) 
+           -t_F_f (end of thrusting period)
+           -Isp (specific impulse)
+    
+    output: -state_dot (derivative of the state)
+
+    '''
+
+    #state variables (state=[x y z vx vy vz m])
+
+    #spacecraft position
+    x=state[0]
+    y=state[1]
+    z=state[2]
+
+    #spacecraft velocity
+    vx=state[3]
+    vy=state[4]
+    vz=state[5]
+
+    #additional quantities
+    r13=sqrt((x+mu)**2+y**2+z**2) #earth-sc distance
+    r23=sqrt((x-(1-mu))**2+y**2+z**2) #moon-sc distance
+
+    #obtain derivative of the state
+    state_dot=np.zeros(7)
+    state_dot[0]=vx
+    state_dot[1]=vy
+    state_dot[2]=vz
+
+    state_dot[3]=2*vy+x-((1-mu)*(x+mu))/(r13**3)-(mu*(x-1+mu))/(r23**3) 
+    state_dot[4]=-2*vx+y-((1-mu)*y)/(r13**3)-(mu*y)/(r23**3) 
+    state_dot[5]=z*((-(1-mu)/(r13**3))+(-mu/(r23**3))) 
+
+    return state_dot

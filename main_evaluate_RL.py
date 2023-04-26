@@ -1,8 +1,8 @@
 from pyrlprob.problem import RLProblem
 
 
-trainer_dir = 'results/PPO_2023-04-21_11-18-18/'
-exp_dir = 'results/PPO_2023-04-21_11-18-18/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_e4252_00000_0_2023-04-21_11-18-18/'
+trainer_dir = 'results/3BP_pertIC/'
+exp_dir = 'results/3BP_pertIC/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_83e6b_00000_0_2023-04-25_12-00-59/'
 last_cp = 1500 
 
 #Config file 

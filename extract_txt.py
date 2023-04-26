@@ -47,8 +47,8 @@ file_L1.close()
 
 #Create file txt with Halo orbits
 f_out_L1=open('Halo_L1_rv.txt', "w")
-f_out_L1.write("%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\n" \
-    % ("x", "y", "z", "vx", "vy", "vz", "C"))
+f_out_L1.write("%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\n" \
+    % ("x", "y", "z", "vx", "vy", "vz", "C", "T"))
 
 
 #Orbital Propagation
@@ -67,7 +67,7 @@ for i in range(N_orbits):
     
     for j in range(N_times):
         C=Jacobi_const(sol[j][0], sol[j][1], sol[j][2], sol[j][3], sol[j][4], sol[j][5])
-        f_out_L1.write("%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\n" \
-                % (sol[j][0], sol[j][1], sol[j][2], sol[j][3], sol[j][4], sol[j][5], C))
+        f_out_L1.write("%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\t%12.7f\n" \
+                % (sol[j][0], sol[j][1], sol[j][2], sol[j][3], sol[j][4], sol[j][5], C, T_Halo_L1[i]))
     f_out_L1.write("\n\n")
 f_out_L1.close()
