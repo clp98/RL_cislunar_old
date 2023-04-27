@@ -14,6 +14,7 @@ from environment.equations import *
 from environment.CR3BP import *
 from environment.rk4 import *
 from environment.BER4BP import *
+from environment.pyKepler import *
 
 
 class Moon_Station_Keeping_Env(AbstractMDP):
@@ -85,7 +86,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
 
-        '''if CR3BP:  #CR3BP equations of motion
+        if self.threebody:  #CR3BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], \
                        state['m']])  #current state 
@@ -96,13 +97,15 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             hitMoon.terminal = True
             events = (hitMoon)
 
+            data = np.concatenate((control, self.ueq), axis=None)
+
             #Solve equations of motion with CR3BP
             solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-                args=(control, self.ueq), rtol=1e-7, atol=1e-7)
+                args=(data), rtol=1e-7, atol=1e-7)
             
         else:  #BER4BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
-                       state['v'][0], state['v'][1], state['v'][2], state['m'], anu_3])  #current state 
+                       state['v'][0], state['v'][1], state['v'][2], state['m'], state['anu_3']])  #current state 
             
             t_span=[state['t'], state['t']+time_step]
 
@@ -110,27 +113,14 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             hitMoon.terminal = True
             events = (hitMoon)
 
+            data = np.concatenate((control, self.ueq, self.r0_sun, self.v0_sun, coe_moon ),axis=None)
+
             #Solve equations of motion with CR3BP
             solution_int = solve_ivp(fun=BER4BP_3dof, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-                args=(control, self.ueq), rtol=1e-7, atol=1e-7)'''
-            
-
-        s=np.array([state['r'][0], state['r'][1], state['r'][2], \
-                       state['v'][0], state['v'][1], state['v'][2], \
-                       state['m']])  #current state 
-
-        t_span=[state['t'], state['t']+time_step]  #time interval 
-
-        #Events
-        hitMoon.terminal = True
-        events = (hitMoon)
-
-        #Solve equations of motion with CR3BP
-        solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-            args=(control, self.ueq), rtol=1e-7, atol=1e-7)
+                args=(data), rtol=1e-7, atol=1e-7)
 
 
-        self.success=True
+        self.failure=solution_int.status
 
         r_new = np.array([solution_int.y[0][-1], solution_int.y[1][-1], solution_int.y[2][-1]])
         v_new = np.array([solution_int.y[3][-1], solution_int.y[4][-1], solution_int.y[5][-1]])
@@ -138,17 +128,23 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         state_next={'r':r_new, 'v':v_new,\
                     'm':m_new, 't':solution_int.t[-1], 'step':state['step']+1}  #next state
+        
+        if not self.threebody:
+            state_next['anu_3'] = solution_int.y[7][-1]
+            
     
-        
-        
-
         if self.dist_r_method:
+             #Events
+            hitMoon.terminal = True
+            events = (hitMoon)
 
-    
+            data = []
+
             #Solve equations of motion with CR3BP
             s=np.concatenate((r_new, v_new), axis=None)
             t_span = [state['t'], state['t']+self.T_Halo]
-            sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
+            sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, 
+                                        args = (data), \
                                         rtol=1e-7, atol=1e-7)
             
             r_afterperiod = np.array([sol_afterperiod.y[0][-1], sol_afterperiod.y[1][-1], sol_afterperiod.y[2][-1]])
@@ -164,10 +160,9 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
 
-
-
         state_next['dist_r']=delta_r/self.r_Halo_ref
         state_next['dist_v']=delta_v/self.v_Halo_ref
+
 
         return state_next
     
@@ -185,10 +180,10 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
         self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
-        delta_s=max(max(delta_r, delta_v)-self.epsilon, 0)
+        delta_s=max(max(delta_r, delta_v/10)-self.epsilon, 0)
         delta_m=prev_state['m']-state['m']
 
-        reward=-(delta_s+self.w*delta_m)  #reward function definition
+        reward = -(delta_s+self.w*delta_m)  #reward function definition
         
         #reward update RIFARE!!! CON AUTOVETTORE USCENTE
         #lambda_pos=2.15 #autovalore positivo divergente
@@ -196,7 +191,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         if state['step']==self.num_steps:
             done=True
-        if self.success is False:
+        if self.failure == 1:
+            reward = reward - 1000.*(self.num_steps - state['step'])
             done=True
         
         reward /= 100.
@@ -233,6 +229,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['custom_metrics']['dist_v_mean']=self.dist_v_mean 
             info['custom_metrics']['mf']=state['m']
             info['custom_metrics']['epsilon']=self.epsilon
+            info['custom_metrics']['failure']=self.failure
 
 
             info['episode_step_data']['x'].append(state['r'][0])
@@ -263,6 +260,13 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.state['t']=0.
         self.state['m']=self.m_sc
         control=0.
+
+        if self.threebody:
+            anu_1_deg = np.random.uniform(0,360)  #sun (first body) true anomaly choosen randomly
+            self.r0_sun, self.v0_sun = par2ic(coe_sun + [anu_1_deg*conv], sigma)
+            anu_3 = np.random.uniform(0,360)
+            self.state['anu_3']=anu_3*conv
+
         
         self.r0, self.v0, self.T_Halo=choose_Halo(self.filename, self.single_matrix)
 

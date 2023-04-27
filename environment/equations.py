@@ -40,7 +40,7 @@ def choose_Halo(filename, single_matrix):
                 vec = np.array(line_split).astype(np.float64)
                 rv_matrix.append(vec)
     
-    k=randint(1,101)
+    k=randint(0,100)
     i=randint(0,247)  #select a random matrix 
     if single_matrix:  #extract only from the first matrix (Halo-1)
         r0=np.array(rv_matrix[k][0:3])  #initial position

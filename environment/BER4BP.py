@@ -1,4 +1,4 @@
-'''import numpy as np
+import numpy as np
 from numpy import sqrt, cos, sin
 from random import random
 from numpy.linalg import norm
@@ -9,49 +9,39 @@ from environment.pyKepler import *
 # Math
 conv = np.pi / 180.		                    # Deg to rad
 g0 = 9.80665e-3                             # sea-level gravitational acceleration, km/s^2
-# physical
-M = 5.4e11
-d2 = 0.78
-d3 = 0.17
-d_ratio = d2/d3
-m3 = M/(d_ratio**3+1)
-m2 = M-m3
-R_2_d = 0.5*d2                                # Radius of second body, km
-R_3_d = 0.5*d3                                # Radius of third body, km
+                               # Radius of third body, km
 SRP_1AU = 4.55987e-06                         # solar radiation pressure at 1AU, Pa
 # Astrodynamics
 solar_day = 86400.                          # one solar day [s]
-AU = 1.495978707e8                          # astronomical unit [km]
-G = 6.67430e-20                             # universal gravitational constant [km^3⋅kg–1⋅s–2]
+AU = 1.495978707e8                          # astronomical unit [km]                             # universal gravitational constant [km^3⋅kg–1⋅s–2]
 GM_1_d = 132712440018.	                    # Gravitational parameter  (Sun) [km^3/s^2]
-GM_2_d = G*m2			                    # Gravitational parameter (body 2) [km^3/s^2]
-GM_3_d = G*m3			                    # Gravitational parameter (body 3) [km^3/s^2]
+GM_2_d = 398600.			                    # Gravitational parameter (body 2) [km^3/s^2]
+GM_3_d = 4905.			                    # Gravitational parameter (body 3) [km^3/s^2]
 mu_ref_d = GM_2_d + GM_3_d	                # Gravitational parameter (adjoint) [km^3/s^2]
 sigma_d = mu_ref_d + GM_1_d
 # Orbital elements
-a_2_d = 1.6443941966*AU				                                    # Semi-major axis (body 2-3) [km]
-e_2 = 0.3836974806			                                            # Eccentricity (body 2-3)
-i_2 = 3.4077057 * conv	#0.		                                        # Inclination of body 2-3's orbit (wrt to the ecliptic) [rad]
+a_2_d = AU				                                    # Semi-major axis (body 2-3) [km]
+e_2 = 0.017			                                            # Eccentricity (body 2-3)
+i_2 = 0		                                        # Inclination of body 2-3's orbit (wrt to the ecliptic) [rad]
 p_2_d = a_2_d * (1 - e_2**2)	                                        # Semilatus rectum [km]
-omega_2 = 319.318868 * conv			                                    # Argument of periapsis [rad]
-OMEGA_2 = 73.199435 * conv			                                    # RAAN  [rad]
+omega_2 = 0			                                    # Argument of periapsis [rad]
+OMEGA_2 = 0			                                    # RAAN  [rad]
 n_2_d = np.sqrt(sigma_d / a_2_d**3)                                     # Mean motion
-XM_2ws = (136.6502278*conv + n_2_d*(453*solar_day)) % (2.*np.pi)                    # Mean anomaly (25 September 2022, 23:59)
-anu_2ws = AE2anu(e_2, XM2AE(e_2, XM_2ws))
 
-a_3_d = 1.19				                # Semi-major axis (body 2-3) [km]
+
+a_3_d = 3.844e+5				                # Semi-major axis (body 2-3) [km]
 e_3 = 0.			                        # Eccentricity (body 2-3)
-i_3 = 160. * conv	          		        # Inclination of body 3 orbit (wrt to ICRS) [rad]
-omega_3 = 0. * conv			                # Argument of periapsis [rad]
-OMEGA_3 = 149. * conv			            # RAAN [rad]
+i_3 = 23.5*conv	          		        # Inclination of body 3 orbit (wrt to ICRS) [rad]
+omega_3 = 0.		                # Argument of periapsis [rad]
+OMEGA_3 = 0.			            # RAAN [rad]
 
 # Conversion units (3-DoF)
-rconv = a_3_d								# Length [km]
-tconv = np.sqrt(a_3_d**3 / mu_ref_d)	    # Time [s]
-vconv = rconv / tconv						# Velocity [km/s]
-aconv = vconv / tconv                       # Acceleration [km/s^2]
-mconv = 1000.                               # Mass [kg]
-fconv = mconv * aconv                       # Force [kN]
+l_star = a_3_d								# Length [km]
+t_star = np.sqrt(a_3_d**3 / mu_ref_d)	    # Time [s]
+v_star = l_star / t_star						# Velocity [km/s]
+a_star = v_star / t_star                       # Acceleration [km/s^2]
+m_star = 1000.                               # Mass [kg]
+f_star = m_star * a_star                       # Force [kN]
 
 
 mu_third = GM_3_d 
@@ -59,48 +49,18 @@ mu_sys = GM_2_d + GM_3_d
 sigma_first = (GM_1_d / mu_sys) + 1.
 
 #Non-dimensional quantities
-a_2 = a_2_d / rconv
-a_3 = a_3_d / rconv
-R_2 = R_2_d / rconv
-R_3 = R_3_d / rconv
+a_2 = a_2_d / l_star
+a_3 = a_3_d / l_star
 mu = GM_3_d / mu_ref_d		                # Gravitational parameter body 3 (non-dimensional)
 sigma = sigma_d / mu_ref_d                  # Total mass ratio
 
 # Initial orbital parameters of B around body 1
-COE_B = [a_2, e_2, i_2, OMEGA_2, omega_2]
+coe_sun = [a_2, e_2, i_2, OMEGA_2, omega_2]
 
 # Initial orbital parameters of body 3 around body 2
-COE_3 = [a_3, e_3, i_3, OMEGA_3, omega_3]
+coe_moon = [a_3, e_3, i_3, OMEGA_3, omega_3]
 
-
-
-anu_3_deg = random.random(0,360)  #moon (third body) true anomaly choosen randomly (va scalato??)
-anu_1_deg = random.random(0,360)  #sun true anomaly choosen randomly
-anu_3=anu_3_deg*conv
-anu_1=anu_1_deg*conv
-
-r0_sun = a_2*((1.-e_2**2)/(1.+e_2*cos(anu_1)))
-sun_r0_x = r0_sun[0]
-sun_r0_y = r0_sun[1]
-sun_r0_z = r0_sun[2]
-v0_sun = sqrt(GM_1_d*(2./r_sun-1./a_3))
-sun_v0_x = v0_sun[0]
-sun_v0_y = v0_sun[1]
-sun_v0_z = v0_sun[2]
-
-sun_r0 = np.array(sun_r0_x, sun_r0_y, sun_r0_z) 
-sun_v0 = np.array(sun_v0_x, sun_v0_y, sun_v0_z)
-
-
-################################################################################################################
-
-#input di BER4BP_3dof da aggiungere
-X0=[state[0], state[1], state[2], state[3], state[4], state[5], self.m_SC, anu_3]
-
-data=[F_vect[0], F_vect[1], F_vect[2], 9.80665e-3*self.Isp, sun_r0[0], sun_r0[1], sun_r0[2], \
-      sun_v0[0], sun_v0[1], sun_v0[2], mu_third, mu_sys, sigma_first, \
-      COE_3[0], COE_3[1], COE_3[2], COE_3[3], COE_3[4], anu_3, \
-      False]
+A_sc = 1.
 
 
 def BER4BP_3dof(t, X0, data):
@@ -141,14 +101,10 @@ def BER4BP_3dof(t, X0, data):
     c = data[3]
     R0_ICRS = data[4:7]
     V0_ICRS = data[7:10]
-    mu_third = data[10]
-    mu_sys = data[11]
-    sigma_first = data[12]
-    coe_3 = data[13:18]
-    with_srp = data[18]
+    coe_3 = data[10:15]
 
     # Propagation of Keplerian motion of B around P1
-    Rt_ICRS, Vt_ICRS = propagate_lagrangian(R0_ICRS, V0_ICRS, t, sigma_first)
+    Rt_ICRS, Vt_ICRS = propagate_lagrangian(R0_ICRS, V0_ICRS, t, sigma)
     Rt_RTN = ICRS2RTN(Rt_ICRS, list(coe_3) + [anu_3])
 
 	# Other
@@ -156,7 +112,7 @@ def BER4BP_3dof(t, X0, data):
     e = coe_3[1]
     p = a * (1. - e**2)
     r = p / (1. + e * cos(anu_3))
-    h = sqrt(p*mu_sys)
+    h = sqrt(p)
 
     r_vect = np.array([1., 0., 0.], dtype=np.float64)
     
@@ -171,35 +127,32 @@ def BER4BP_3dof(t, X0, data):
     vector = np.array([vector_x, vector_y, vector_z])  #velocity vector
 
     #SRP
-    if with_srp:
+    
 
-        #Sun-S/C distance in AU
-        r14 = Rt_RTN + r_RTN
-        r14_norm_AU = norm(r14)*rconv/AU
+    #Sun-S/C distance in AU
+    r14 = Rt_RTN + r_RTN
+    r14_norm_AU = norm(r14)*l_star/AU
 
-        #SRP at S/C distance
-        srp = SRP_1AU/(r14_norm_AU**2)
+    #SRP at S/C distance
+    srp = SRP_1AU/(r14_norm_AU**2)
 
-        #SRP force
-        f_srp_norm = srp*self.A_sc*1e-03/fconv
-        f_srp_x = f_srp_norm*r14[0]/norm(r14)
-        f_srp_y = f_srp_norm*r14[1]/norm(r14)
-        f_srp_z = f_srp_norm*r14[2]/norm(r14)
-        f_srp = np.array([f_srp_x, f_srp_y, f_srp_z], dtype=np.float64)
-
-    else:
-        f_srp = np.zeros(3, dtype=np.float64)
+    #SRP force
+    f_srp_norm = srp*A_sc*1e-03/f_star
+    f_srp_x = f_srp_norm*r14[0]/norm(r14)
+    f_srp_y = f_srp_norm*r14[1]/norm(r14)
+    f_srp_z = f_srp_norm*r14[2]/norm(r14)
+    f_srp = np.array([f_srp_x, f_srp_y, f_srp_z], dtype=np.float64)
 
     
 	#Derivatives
     r_RTN_x_dot = v_RTN_x
     r_RTN_y_dot = v_RTN_y
     r_RTN_z_dot = v_RTN_z
-    v_RTN_dot = vector + (sigma_first - 1.) / pow(r, 3) * ((1. - mu_third) * (Rt_RTN - mu_third * r_vect) / pow(norm(Rt_RTN - mu_third * r_vect), 3) \
-		+ mu_third * (Rt_RTN + (1. - mu_third) * r_vect) / pow(norm(Rt_RTN + (1. - mu_third) * r_vect), 3) \
+    v_RTN_dot = vector + (sigma - 1.) / pow(r, 3) * ((1. - mu) * (Rt_RTN - mu * r_vect) / pow(norm(Rt_RTN - mu * r_vect), 3) \
+		+ mu * (Rt_RTN + (1. - mu) * r_vect) / pow(norm(Rt_RTN + (1. - mu) * r_vect), 3) \
 		- (Rt_RTN + r_RTN) / pow(norm(Rt_RTN + r_RTN), 3)) \
-		- (1 - mu_third) / pow(r, 3) * ((r_RTN + mu_third * r_vect) / pow(norm(r_RTN + mu_third * r_vect), 3)) \
-		- mu_third / pow(r, 3) * (r_RTN - (1 - mu_third) * r_vect) / pow(norm(r_RTN - (1 - mu_third) * r_vect), 3) + f_srp/m + f/m
+		- (1 - mu) / pow(r, 3) * ((r_RTN + mu * r_vect) / pow(norm(r_RTN + mu * r_vect), 3)) \
+		- mu / pow(r, 3) * (r_RTN - (1 - mu) * r_vect) / pow(norm(r_RTN - (1 - mu) * r_vect), 3) + f_srp/m + f/m
     m_dot = - norm(f*r)/c
         
     X_dot = np.array([r_RTN_x_dot, r_RTN_y_dot, r_RTN_z_dot, \
@@ -208,4 +161,3 @@ def BER4BP_3dof(t, X0, data):
     
     return X_dot
 
-'''

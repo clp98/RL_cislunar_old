@@ -1,12 +1,13 @@
 run: ppo  #algorithm used
 stop:  #all the criterias to stop the training
-    training_iteration: 1500  #maximum number of gym iterations
+    training_iteration: 500  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
    - dist_r_mean
    - dist_v_mean
    - mf
    - epsilon
+   - failure
    
 postproc_data:
     episode_step_data:  #data we want after every step
@@ -70,7 +71,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     lr: 1.0e-04  #learning rate of the network = alpha
     # lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]] 
     vf_loss_coeff: 0.5
-    clip_param: 0.01  #by how much (percentage) the policy can vary
+    clip_param: 0.10  #by how much (percentage) the policy can vary
     vf_clip_param: 1.
     env: environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env  #which is the environment
     callbacks:
@@ -80,7 +81,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
     env_config:  #dictionary with all values that represent the environment
         filename: /home/carlo/RL_cislunar/Halo_L1_rv.txt
-        eps_schedule: [[0,0.25],[1500,1.0e-03]]  #2500 is equal to training_iterations
+        eps_schedule: [[0,1],[500,1.0e-03]]  #2500 is equal to training_iterations
         num_steps: 100  #number of iterations
         Isp: 3000 #specific impulse
         tf: 2.74291184  #maximum duration of the mission
@@ -88,9 +89,9 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1
         w: 0.02  #weight of the mass reward part
-        CR3BP: True
+        threebody: True
         single_matrix: True  #extract only from first matrix (see extract.txt)
         error_initial_position: True  #error on spacecraft initial position
-        with_srp: False
         dist_r_method: True
+
         
