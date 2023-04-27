@@ -101,7 +101,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             #Solve equations of motion with CR3BP
             solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-                args=(data), rtol=1e-7, atol=1e-7)
+                args=(data,), rtol=1e-7, atol=1e-7)
             
         else:  #BER4BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
@@ -117,7 +117,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             #Solve equations of motion with CR3BP
             solution_int = solve_ivp(fun=BER4BP_3dof, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-                args=(data), rtol=1e-7, atol=1e-7)
+                args=(data,), rtol=1e-7, atol=1e-7)
 
 
         self.failure=solution_int.status
@@ -144,7 +144,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             s=np.concatenate((r_new, v_new), axis=None)
             t_span = [state['t'], state['t']+self.T_Halo]
             sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, 
-                                        args = (data), \
+                                        args = (data,), \
                                         rtol=1e-7, atol=1e-7)
             
             r_afterperiod = np.array([sol_afterperiod.y[0][-1], sol_afterperiod.y[1][-1], sol_afterperiod.y[2][-1]])
@@ -261,7 +261,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.state['m']=self.m_sc
         control=0.
 
-        if self.threebody:
+        if not self.threebody:
             anu_1_deg = np.random.uniform(0,360)  #sun (first body) true anomaly choosen randomly
             self.r0_sun, self.v0_sun = par2ic(coe_sun + [anu_1_deg*conv], sigma)
             anu_3 = np.random.uniform(0,360)
