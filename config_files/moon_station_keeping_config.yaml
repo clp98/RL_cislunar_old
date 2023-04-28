@@ -9,7 +9,7 @@
 
 run: ppo  #algorithm used
 stop:  #all the criterias to stop the training
-    training_iteration: 500  #maximum number of gym iterations
+    training_iteration: 1000  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
    - dist_r_mean
@@ -48,15 +48,28 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     num_cpus_per_worker: 0.875  #number of cpu
     num_gpus_per_worker: 0  #number of gpu
     num_cpus_for_driver: 1  #number of cpu per driver
-    rollout_fragment_length: 100
+    rollout_fragment_length: 50
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
-    train_batch_size: 10000  #step complessivi di tutti i worker di tutti gli environment
+    train_batch_size: 5000  #step complessivi di tutti i worker di tutti gli environment
     model:  #definisce la rete neurale
-        fcnet_hiddens: [70,46,30]  #numero di layer, numero di neuroni per layer, 
+        #MLP
+        fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer, 
         fcnet_activation: tanh  #activation function used
         use_lstm: False
         vf_share_layers: False  #False --> rete separata (vf=value function)
         free_log_std: True  #True --> valori separati dalla rete
+
+        #LSTM
+        # fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer, 
+        # fcnet_activation: tanh  #activation function used
+        # use_lstm: True
+        # max_seq_len: 25
+        # lstm_cell_size: 20
+        # lstm_use_prev_action: True
+        # lstm_use_prev_reward: False
+        # vf_share_layers: True  #False --> rete separata (vf=value function)
+        # free_log_std: False  #True --> valori separati dalla rete
+
     gamma: 0.999  #discount factor
     log_level: INFO  #che info voglio sia stampata a schermo
     framework: tf  #framework usato
@@ -74,7 +87,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     use_gae: True
     lambda: 0.98  #discount factor (=[0,1])
     kl_coeff: 0.
-    sgd_minibatch_size: 1000  #grandezza batch per gradient descent
+    sgd_minibatch_size: 500  #grandezza batch per gradient descent
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
@@ -90,17 +103,19 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
     env_config:  #dictionary with all values that represent the environment
         filename: /home/carlo/RL_cislunar/Halo_L1_rv.txt
-        eps_schedule: [[0,1],[500,1.0e-03]]  #2500 is equal to training_iterations
-        num_steps: 100  #number of iterations
+        eps_schedule: [[0,1],[1000,1.0e-03]]  #2500 is equal to training_iterations
+        num_steps: 50  #number of iterations
         Isp: 3000 #specific impulse
         tf: 2.74291184  #maximum duration of the mission
         Fmax: 10  #maximum thrust of the engine [],  Fmax[N] = (value) * 2.7307388899605793e-06 * spacecraft mass
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1
         w: 0.02  #weight of the mass reward part
-        threebody: False
+        threebody: True
         single_matrix: True  #extract only from first matrix (see extract.txt)
         error_initial_position: True  #error on spacecraft initial position
-        dist_r_method: True
+        dist_r_method: False
+        dr_max: 20.
+        dv_max: 0.001
 
         

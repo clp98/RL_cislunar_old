@@ -127,8 +127,6 @@ def BER4BP_3dof(t, X0, data):
     vector = np.array([vector_x, vector_y, vector_z])  #velocity vector
 
     #SRP
-    
-
     #Sun-S/C distance in AU
     r14 = Rt_RTN + r_RTN
     r14_norm_AU = norm(r14)*l_star/AU
@@ -157,7 +155,7 @@ def BER4BP_3dof(t, X0, data):
         
     X_dot = np.array([r_RTN_x_dot, r_RTN_y_dot, r_RTN_z_dot, \
         v_RTN_dot[0], v_RTN_dot[1], v_RTN_dot[2], \
-        anu_3_dot, m_dot], dtype=np.float64)
+        m_dot, anu_3_dot], dtype=np.float64)
     
     return X_dot
 
