@@ -1,12 +1,12 @@
 from pyrlprob.problem import RLProblem
 
 
-trainer_dir = 'results/3BP_pertIC/'
-exp_dir = 'results/3BP_pertIC/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_83e6b_00000_0_2023-04-25_12-00-59/'
-last_cp = 1500 
+trainer_dir = 'results/PPO_2023-04-28_13-13-47/'
+exp_dir = 'results/PPO_2023-04-28_13-13-47/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_2eed6_00000_0_2023-04-28_13-13-47/'
+last_cp = 400 
 
 #Config file 
-config_file = exp_dir + "/config.yaml"
+config_file = "config_files/moon_station_keeping_config.yaml" #exp_dir + "/config.yaml"
 
 #Define RL problem
 UAVProblem = RLProblem(config_file)

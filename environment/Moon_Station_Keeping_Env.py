@@ -196,11 +196,14 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         if state['step']==self.num_steps:
             done=True
-        if self.failure == 1 or delta_r > 10*self.epsilon_r:
-            reward = reward - 1000.*(self.num_steps - state['step'])
+        if self.failure == 1:
+            reward = reward - 10.*delta_s*(self.num_steps - state['step'])
+            # reward = reward - 100*(self.num_steps - state['step'])
             done=True
-        
-        reward /= 100.
+        # elif delta_r > 10*self.epsilon_r:
+        #     reward = reward - 10.*delta_s
+
+        # reward /= 10.
         
         return reward, done
 
@@ -224,14 +227,14 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         info['episode_step_data']['Fz']=[control[2]]
         info['episode_step_data']['F_mod']=[norm(control)]
         info['episode_step_data']['dist_r']=[prev_state['dist_r']*l_star]
-        info['episode_step_data']['dist_v']=[prev_state['dist_v']*v_star]
+        info['episode_step_data']['dist_v']=[prev_state['dist_v']*v_star*1e3]
 
         if done:  #episode ended
             info['episode_end_data']={}
             info['custom_metrics']={}
 
             info['custom_metrics']['dist_r_mean']=self.dist_r_mean*l_star
-            info['custom_metrics']['dist_v_mean']=self.dist_v_mean*v_star
+            info['custom_metrics']['dist_v_mean']=self.dist_v_mean*v_star*1e3
             info['custom_metrics']['mf']=state['m']
             info['custom_metrics']['epsilon']=self.epsilon
             info['custom_metrics']['failure']=self.failure
@@ -250,7 +253,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_step_data']['Fz'].append(control[2])
             info['episode_step_data']['F_mod'].append(norm(control))
             info['episode_step_data']['dist_r'].append(state['dist_r']*l_star)
-            info['episode_step_data']['dist_v'].append(state['dist_v']*v_star)
+            info['episode_step_data']['dist_v'].append(state['dist_v']*v_star*1e3)
             
 
         return info
@@ -276,12 +279,12 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.r0, self.v0, self.T_Halo=choose_Halo(self.filename, self.single_matrix)
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
-            dr0 = np.random.uniform(-self.dr_max*norm(self.r0), self.dr_max*norm(self.r0), 3)  #initial position error vector
-            dv0 = np.random.uniform(-self.dv_max*norm(self.v0), self.dv_max*norm(self.v0), 3)  #initial velocity error vector
+            dr0 = np.random.uniform(-self.dr_max, self.dr_max, 3)  #initial position error vector
+            dv0 = np.random.uniform(-self.dv_max, self.dv_max, 3)  #initial velocity error vector
             self.state['r'] = self.r0 + dr0
             self.state['v'] = self.v0 + dv0
-            self.state['dist_r'] = norm(dr0)/self.r_Halo_ref
-            self.state['dist_v'] = norm(dv0)/self.v_Halo_ref
+            self.state['dist_r'] = norm(dr0)
+            self.state['dist_v'] = norm(dv0)
             self.dist_r_mean = self.state['dist_r']
             self.dist_v_mean = self.state['dist_v']
         else:  
