@@ -9,7 +9,7 @@
 
 run: ppo  #algorithm used
 stop:  #all the criterias to stop the training
-    training_iteration: 1000  #maximum number of gym iterations
+    training_iteration: 2  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
    - dist_r_mean
@@ -102,7 +102,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: /home/carlo/RL_cislunar/Halo_L1_rv.txt
+        filename: ./Halo_L1_rv.txt
         eps_schedule: [[0,1.0e-03],[1000,1.0e-03]]  #2500 is equal to training_iterations
         num_steps: 50  #number of iterations
         Isp: 3000 #specific impulse

@@ -9,23 +9,23 @@ set term unknown
 set key top center nobox height 1
 set key spacing 1.4
 # set xrange [0.78:1.22]
-set zrange [-0.15:0.15]
+# set yrange [-0.15:0.15]
+set size ratio -1
 set xtics offset 0.1,0
 set ytics offset -1.5,0
 #set view equal xy
 # unset key
 # set view equal xyz
-set view 115,60
+# set view 115,60
 # set grid
-set size ratio -1
 
 set xlabel "$x$"
 set ylabel "$y$"
-set zlabel "$z$"
+# set zlabel "$z$"
 
 set format x "%.2f"
 set format y "%.2f"
-set format z "%.2f"
+# set format z "%.2f"
 
 set autoscale fix
 
@@ -44,19 +44,19 @@ x_L1 = 0.8369
 x_L2 = 1.1557
 
 
-splot "<echo '0.8369 0 0'" with p ls 1 notitle
-replot "<echo '0.8369 0 0'" using 1:2:3:(sprintf("%2s", "L1")) with labels offset char 0,0.7 notitle
-replot for [k = 1:1] filename1 i k using 1:2:3 w l lt 6 lw 2.5 notitle
-replot filename2 using 1:2:3 w l lt 7 lw 2.5 notitle 
+plot "<echo '0.8369 0'" with p ls 1 notitle
+replot "<echo '0.8369 0'" using 1:2:3:(sprintf("%2s", "L1")) with labels offset char 0,0.7 notitle
+replot for [k = 1:1] filename1 i k using 1:2 w l lt 6 lw 2.5 notitle
+replot filename2 using 1:2 w l lt 7 lw 2.5 notitle 
 
-# min = (GPVAL_Y_MIN < GPVAL_X_MIN ? GPVAL_Y_MIN : GPVAL_X_MIN)
-# max = (GPVAL_Y_MAX > GPVAL_X_MAX ? GPVAL_Y_MAX : GPVAL_X_MAX)
+min = (GPVAL_Y_MIN < GPVAL_X_MIN ? GPVAL_Y_MIN : GPVAL_X_MIN)
+max = (GPVAL_Y_MAX > GPVAL_X_MAX ? GPVAL_Y_MAX : GPVAL_X_MAX)
 
-# set xrange [GPVAL_X_MIN - 0.1*abs(GPVAL_X_MIN):GPVAL_X_MAX + 0.1*abs(GPVAL_X_MAX)]
-# set yrange [GPVAL_Y_MIN - 0.1*abs(GPVAL_Y_MIN):GPVAL_Y_MAX + 0.1*abs(GPVAL_Y_MAX)]
-# set size ratio -1
+set xrange [GPVAL_X_MIN - 0.1*abs(GPVAL_X_MIN):GPVAL_X_MAX + 0.1*abs(GPVAL_X_MAX)]
+set yrange [GPVAL_Y_MIN - 0.1*abs(GPVAL_Y_MIN):GPVAL_Y_MAX + 0.1*abs(GPVAL_Y_MAX)]
+set size ratio -1
 
 set terminal epslatex standalone color colortext 10 lw 2 header \
 "\\usepackage{amsmath}\n\\usepackage{siunitx}"
-set output 'trajectory.tex'
+set output 'trajectory_2d.tex'
 replot

@@ -37,7 +37,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.num_obs=10  #number of observations
         self.num_act=4  #number of actions
         self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))
-        self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))
+        self.action_space=spaces.Box(low=-1, high=-1, shape=(self.num_act,))
         
         self.max_episode_steps=self.num_steps  #maximum number of episodes
         self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
