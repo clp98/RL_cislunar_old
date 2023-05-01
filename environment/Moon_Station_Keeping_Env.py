@@ -200,10 +200,10 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             reward = reward - 10.*delta_s*(self.num_steps - state['step'])
             # reward = reward - 100*(self.num_steps - state['step'])
             done=True
-        # elif delta_r > 10*self.epsilon_r:
-        #     reward = reward - 10.*delta_s
+        elif delta_r > 10*self.epsilon_r:
+            reward = reward - 10.*delta_s
 
-        # reward /= 10.
+        reward /= 10.
         
         return reward, done
 

@@ -103,7 +103,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
     env_config:  #dictionary with all values that represent the environment
         filename: /home/carlo/RL_cislunar/Halo_L1_rv.txt
-        eps_schedule: [[0,0.1],[1000,1.0e-03]]  #2500 is equal to training_iterations
+        eps_schedule: [[0,1.0e-03],[1000,1.0e-03]]  #2500 is equal to training_iterations
         num_steps: 50  #number of iterations
         Isp: 3000 #specific impulse
         tf: 2.74291184  #maximum duration of the mission
