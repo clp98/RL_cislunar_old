@@ -37,7 +37,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.num_obs=10  #number of observations
         self.num_act=4  #number of actions
         self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))
-        self.action_space=spaces.Box(low=-1, high=-1, shape=(self.num_act,))
+        self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))
         
         self.max_episode_steps=self.num_steps  #maximum number of episodes
         self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
@@ -62,19 +62,23 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
     def get_observation(self, state, control):  #get the current observation
 
-        r_obs=state['r'] - self.r_Halo[state['step']]
-        v_obs=state['v'] - self.v_Halo[state['step']]
-        m_obs=state['m']
-        dist_r_obs=state['dist_r']
-        dist_v_obs=state['dist_v']
+        r_obs = state['r'] - self.r_Halo[state['step']]
+        v_obs = state['v'] - self.v_Halo[state['step']]
+        m_obs = state['m']
+        dist_r_obs = state['dist_r']
+        dist_v_obs = state['dist_v']
         self.r_from_L1 = state['r'] - self.r_L1
         theta = arctan2(self.r_from_L1[1], self.r_from_L1[0])/(2*np.pi)
+        #C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])
+        #_, _, _, C_Halo = choose_Halo(filename, single_matrix)
+        #delta_C = C_jacobi - C_Halo
 
         observation=np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
-                               v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta])
+                               v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta])  #add delta_C
 
         return observation
         
+
 
 
 
@@ -187,9 +191,9 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
         self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
-        self.epsilon_r=self.epsilon*1e+4/l_star
+        self.epsilon_r=self.epsilon*1e+05/l_star
         self.epsilon_v=self.epsilon/v_star
-        delta_s=max(max(delta_r - self.epsilon_r, delta_v - self.epsilon_v), 0)
+        delta_s=max(max((delta_r - self.epsilon_r)*self.w_r, delta_v - self.epsilon_v), 0)
         delta_m=prev_state['m']-state['m']
 
         reward = -(delta_s+self.w*delta_m)  #reward function definition
@@ -198,7 +202,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             done=True
         if self.failure == 1:
             reward = reward - 10.*delta_s*(self.num_steps - state['step'])
-            # reward = reward - 100*(self.num_steps - state['step'])
+            #reward = reward - 100*(self.num_steps - state['step'])
             done=True
         elif delta_r > 10*self.epsilon_r:
             reward = reward - 10.*delta_s
@@ -276,7 +280,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.state['anu_3']=anu_3*conv
 
         
-        self.r0, self.v0, self.T_Halo=choose_Halo(self.filename, self.single_matrix)
+        self.r0, self.v0, self.T_Halo, _ =choose_Halo(self.filename, self.single_matrix)
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
             dr0 = np.random.uniform(-self.dr_max, self.dr_max, 3)  #initial position error vector

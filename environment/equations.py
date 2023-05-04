@@ -46,15 +46,17 @@ def choose_Halo(filename, single_matrix):
         r0=np.array(rv_matrix[k][0:3])  #initial position
         v0=np.array(rv_matrix[k][3:6])  #initial velocity
         T_Halo = rv_matrix[k][7]
+        C_Halo = rv_matrix[k][6]
 
     else:  #extract from any of the matrices (Halo-j)
         j=101*i+k
         r0=np.array(rv_matrix[j][0:3])  #initial position
         v0=np.array(rv_matrix[j][3:6])  #initial velocity
         T_Halo = rv_matrix[j][7]
+        C_Halo = rv_matrix[j][6]
      
 
-    return r0, v0, T_Halo
+    return r0, v0, T_Halo, C_Halo
     
 
 

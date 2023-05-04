@@ -46,9 +46,9 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     num_cpus_per_worker: 0.875  #number of cpu
     num_gpus_per_worker: 0  #number of gpu
     num_cpus_for_driver: 1  #number of cpu per driver
-    rollout_fragment_length: 50
+    rollout_fragment_length: 25
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
-    train_batch_size: 5000  #step complessivi di tutti i worker di tutti gli environment
+    train_batch_size: 2500  #step complessivi di tutti i worker di tutti gli environment
     model:  #definisce la rete neurale
         #MLP
         fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer, 
@@ -89,7 +89,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    lr_schedule: [[0, 1.0e-04], [10000000, 1.0e-06]]  #trainbatch size * training iterations
+    lr_schedule: [[0, 1.0e-04], [20000000, 1.0e-06]] 
     vf_loss_coeff: 0.5
     clip_param: 0.1  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
@@ -101,8 +101,8 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
     env_config:  #dictionary with all values that represent the environment
         filename: ./Halo_L1_rv.txt
-        eps_schedule: [[0,1],[2000,1.0e-02]]  #2500 is equal to training_iterations
-        num_steps: 50  #number of iterations
+        eps_schedule: [[0,1],[2000,1.0e-03]]  #2500 is equal to training_iterations
+        num_steps: 25  #number of iterations
         Isp: 3000 #specific impulse
         tf: 2.74291184  #maximum duration of the mission
         Fmax: 4.0e-02  #maximum thrust of the engine [],  Fmax[N] = (value) * 2.7307388899605793e-06 * spacecraft mass
