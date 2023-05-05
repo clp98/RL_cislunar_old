@@ -114,6 +114,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
                 args=(data,), rtol=1e-7, atol=1e-7)
             
+            
         else:  #BER4BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], state['m'], state['anu_3']])  #current state 

@@ -211,6 +211,20 @@ def hitMoon(t, y, data):
 
 
 
+
+#different reward approach
+def halo_dist_r(t, y, data):
+
+    r = np.array([state['r'][0], state['r'][1], state['r'][2]])
+    r_moon = np.array([1 - mu, 0., 0.])`
+    R_moon = 1738  #[km]
+    distance = norm(r-r_moon) - R_moon
+
+    return distance
+
+
+
+
 def CR3BP_equations_ivp(t, state, data):  #with control
     '''
     input: -t (time)

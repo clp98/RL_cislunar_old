@@ -46,7 +46,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     num_cpus_per_worker: 0.875  #number of cpu
     num_gpus_per_worker: 0  #number of gpu
     num_cpus_for_driver: 1  #number of cpu per driver
-    rollout_fragment_length: 50
+    rollout_fragment_length: 100
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
     train_batch_size: 5000  #step complessivi di tutti i worker di tutti gli environment
     model:  #definisce la rete neurale
@@ -102,7 +102,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     env_config:  #dictionary with all values that represent the environment
         filename: ./Halo_L1_rv.txt
         eps_schedule: [[0,1],[2000,1.0e-02]]  #2500 is equal to training_iterations
-        num_steps: 50  #number of iterations
+        num_steps: 100  #number of iterations
         Isp: 3000 #specific impulse
         tf: 2.74291184  #maximum duration of the mission
         Fmax: 4.0e-02  #maximum thrust of the engine [],  Fmax[N] = (value) * 2.7307388899605793e-06 * spacecraft mass
