@@ -27,7 +27,6 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         #observations: x, y, z, vx, vy, vz, m, t, dist_r, dist_v
         #actions: Fx, Fy, Fz, Fmod
 
-
         #class attributes
         self.ueq=self.Isp*g0/v_star  #equivalent flux velocity
         self.time_step=self.tf/float(self.num_steps)  #time step time_step

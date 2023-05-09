@@ -13,6 +13,16 @@ PPO_2023-05-04_14-25-22  -->  clip_par=0.1, lr=[[0, 1.0e-04],[10000000, 1.0e-06]
 PPO_2023-05-05_10-49-38  -->  clip_par=0.1, lr=[[0, 1.0e-04],[10000000, 1.0e-06]], epsilon:[[0,1],[2000,1.0e-02]], 100 steps
 PPO_2023-05-08_11-08-38  -->  clip_par=0.1, lr=[[0, 1.0e-04],[10000000, 1.0e-06]], epsilon:[[0,1],[2000,1.0e-02]], 100 steps, evaluation_interval=2
 BEAST  -->  clip_par=0.1, lr=[[0, 1.0e-04],[20000000, 1.0e-06]] decrescente, epsilon:[[0,1],[2000,1.0e-02]], 100 num_steps
+PPO_2023-05-08_11-08-38  -->  clip_par=0.1, lr=[[0, 1.0e-04],[20000000, 1.0e-06]] decrescente, epsilon:[[0,1],[2000,1.0e-02]], 100 num_steps, MLP:([50,35,20])
+PPO_2023-05-08_22-15-29  -->  clip_par=0.1, lr=0.0004 costante, epsilon:[[0,1],[2000,1.0e-02]], 100 num_steps, MLP:([50,35,20])
+(non partito)  -->  clip_par=0.1, lr=0.0004 costante, epsilon:[[0,1],[2000,1.0e-02]], 100 num_steps, MLP:([100,70,40])
+
+
+
+
+
+
+
 
 
 
