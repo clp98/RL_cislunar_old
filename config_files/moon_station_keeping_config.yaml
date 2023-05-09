@@ -48,7 +48,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     num_cpus_for_driver: 1  #number of cpu per driver
     rollout_fragment_length: 100
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
-    train_batch_size: 5000  #step complessivi di tutti i worker di tutti gli environment
+    train_batch_size: 10000  #step complessivi di tutti i worker di tutti gli environment
     model:  #definisce la rete neurale
         #MLP
         fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer, 
@@ -79,17 +79,17 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     evaluation_config:  #config della valutazione
         explore: False  #esplorazione
         env_config:
-            eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]  #epsilon law parameters
+            eps_schedule: [[0, 1.0e-02], [1, 1.0e-02]]  #epsilon law parameters
     evaluation_num_workers: 4  #number of workers per valutazione
     use_critic: True
     use_gae: True
     lambda: 0.98  #discount factor (=[0,1])
     kl_coeff: 0.
-    sgd_minibatch_size: 500  #grandezza batch per gradient descent
+    sgd_minibatch_size: 1000  #grandezza batch per gradient descent
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    lr_schedule: [[0, 1.0e-04], [10000000, 1.0e-06]]  #trainbatch size * training iterations
+    lr_schedule: [[0, 1.0e-04], [20000000, 1.0e-06]]  #trainbatch size * training iterations
     vf_loss_coeff: 0.5
     clip_param: 0.1  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
