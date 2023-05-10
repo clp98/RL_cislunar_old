@@ -282,7 +282,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.state['anu_3']=anu_3*conv
 
         
-        self.r0, self.v0, self.T_Halo, _ =choose_Halo(self.filename, self.single_matrix)
+        self.r0, self.v0, self.T_Halo, _ = choose_Halo(self.filename, self.single_matrix)
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
             dr0 = np.random.uniform(-self.dr_max, self.dr_max, 3)  #initial position error vector
