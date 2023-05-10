@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # indir="results/PPO_2023-05-01_12-25-48/PPO_2023-05-01_13-41-48/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_985ed_00000_0_2023-05-01_13-41-49/checkpoint_000353/"
-indir="results/PPO_2023-05-08_22-15-29/PPO_2023-05-09_08-17-38/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_a266a_00000_0_2023-05-09_08-17-38/checkpoint_001942/"
+indir="results/PPO_2023-05-02_16-29-35/PPO_2023-05-03_00-00-25/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_2e14f_00000_0_2023-05-03_00-00-25/checkpoint_001460/"
 gnuplot -e "indir=\"${indir}\"" "PlotFiles/plot_traj.plt"
 gnuplot -e "indir=\"${indir}\"" "PlotFiles/plot_traj_2d.plt"
 
