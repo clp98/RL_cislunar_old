@@ -150,7 +150,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             #Solve equations of motion with CR3BP
             t_span = [state['t'], state['t']+self.T_Halo]
-            if self.three_body:
+            if self.threebody:
                 s=np.concatenate((r_new, v_new), axis=None)
                 data = []
                 sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, 
