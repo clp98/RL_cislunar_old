@@ -147,18 +147,21 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             
     
         if self.dist_r_method:
-             #Events
-            hitMoon.terminal = True
-            events = (hitMoon)
-
-            data = []
 
             #Solve equations of motion with CR3BP
-            s=np.concatenate((r_new, v_new), axis=None)
             t_span = [state['t'], state['t']+self.T_Halo]
-            sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, 
-                                        args = (data,), \
-                                        rtol=1e-7, atol=1e-7)
+            if self.three_body:
+                s=np.concatenate((r_new, v_new), axis=None)
+                data = []
+                sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, 
+                                            args = (data,), \
+                                            rtol=1e-7, atol=1e-7)
+            else:
+                s=np.array([r_new[0], r_new[1], r_new[2], \
+                       v_new[0], v_new[1], v_new[2], m_new, state['anu_3']])  #current state 
+                data = np.concatenate((self.r0_sun, self.v0_sun, coe_moon ),axis=None)
+                sol_afterperiod = solve_ivp(fun=BER4BP_3dof_free, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
+                    args=(data,), rtol=1e-7, atol=1e-7)
             
             r_afterperiod = np.array([sol_afterperiod.y[0][-1], sol_afterperiod.y[1][-1], sol_afterperiod.y[2][-1]])
             v_afterperiod = np.array([sol_afterperiod.y[3][-1], sol_afterperiod.y[4][-1], sol_afterperiod.y[5][-1]])

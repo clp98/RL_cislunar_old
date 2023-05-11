@@ -2,8 +2,8 @@ from pyrlprob.problem import RLProblem
 
 
 trainer_dir = 'results/PPO_2023-05-04_14-25-22/'
-exp_dir = 'results/PPO_2023-05-04_14-25-22/PPO_2023-05-04_23-24-35/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_816ca_00000_0_2023-05-04_23-24-35/'
-last_cp = 1955 
+exp_dir = '/home/jupiter/Documents/carlo/RL_cislunar/results/PPO_2023-05-09_15-42-15/'
+last_cp = 4000 
 
 #Config file 
 config_file = "config_files/moon_station_keeping_config.yaml" #exp_dir + "/config.yaml"
@@ -13,3 +13,4 @@ MSKProblem = RLProblem(config_file)
 
 #Evaluation and postprocessing
 exp_dirs, last_cps, best_cp_dir = MSKProblem.evaluate(trainer_dir, exp_dir, last_cp)
+

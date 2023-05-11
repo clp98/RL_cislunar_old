@@ -11,18 +11,19 @@ from pyrlprob.problem import RLProblem
 
 # Input config file and parameters
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default="config_files/moon_station_keeping_config.yaml", \
+parser.add_argument('--config', type=str, default="config_files/moon_station_keeping_config_2.yaml", \
     help='Input file with algorithm, model and environment config')
 args = parser.parse_args()
 config_file = args.config
 config = yaml.safe_load(open(config_file))
 
 # Tests
-hardware = ["cpu_only"] #"gpu_d_cpu_w"] #, "gpu_w_cpu_d", "gpu_only"
-cpus = 8.0
-gpus = 0
+hardware = ["cpu_only", "gpu_d_cpu_w"] #, "gpu_w_cpu_d", "gpu_only"
+cpus = 32.0
+gpus = 1
 envs = 100
-max_w = 20
+min_w = 50
+max_w = 100
 
 # Output file
 f_log = open("./cpu_times.txt", "w")
@@ -36,7 +37,7 @@ ray.init(logging_level="ERROR", log_to_driver=False)
 for h in hardware:
     for w in divisors(envs):
         
-        if w > max_w:
+        if w > max_w or w < min_w:
             continue
         
         eval_w = w

@@ -1,0 +1,120 @@
+# load:
+#     trainer_dir: "results/PPO_2023-05-01_14-14-06/"
+#     prev_exp_dirs:
+#         - "results/PPO_2023-05-01_14-14-06/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_1b859_00000_0_2023-05-01_14-14-07/"
+#     prev_last_cps:
+#         - 500
+
+run: ppo  #algorithm used
+stop:  #all the criterias to stop the training
+    training_iteration: 2000  #maximum number of gym iterations
+
+custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
+   - dist_r_mean
+   - dist_v_mean
+   - mf
+   - epsilon
+   - failure
+   
+postproc_data:
+    episode_step_data:  #data we want after every step
+       - x
+       - y
+       - z
+       - vx
+       - vy
+       - vz
+       - m
+       - t
+       - Fx
+       - Fy
+       - Fz
+       - F_mod
+       - dist_r
+       - dist_v
+    
+
+num_eval_episodes: 1  #number od episodes to evaluate with Monte Carlo
+eval_env_config:
+    env_config:
+        prng_seed: 0  #seed of random numbers
+
+config:  #all the data necessary requested by Ray library   (driver = cio che fa l'update della rete)
+    num_workers: 25  #number of copies of the network
+    num_envs_per_worker: 4  #number of environments
+    num_gpus: 1  #number of gpu
+    num_cpus_per_worker: 0.64  #number of cpu
+    num_gpus_per_worker: 0  #number of gpu
+    num_cpus_for_driver: 0  #number of cpu per driver
+    rollout_fragment_length: 100
+    batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
+    train_batch_size: 10000  #step complessivi di tutti i worker di tutti gli environment
+    model:  #definisce la rete neurale
+        #MLP
+        # fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer, 
+        # fcnet_activation: tanh  #activation function used
+        # use_lstm: False
+        # vf_share_layers: False  #False --> rete separata (vf=value function)
+        # free_log_std: True  #True --> valori separati dalla rete
+
+        #LSTM
+        fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer, 
+        fcnet_activation: tanh  #activation function used
+        use_lstm: True
+        max_seq_len: 25
+        lstm_cell_size: 20
+        lstm_use_prev_action: True
+        lstm_use_prev_reward: False
+        vf_share_layers: True  #False --> rete separata (vf=value function)
+        free_log_std: False  #True --> valori separati dalla rete
+
+    gamma: 0.999  #discount factor
+    log_level: INFO  #che info voglio sia stampata a schermo
+    framework: tf  #framework usato
+    explore: True  #esplorazione durante l'allenamento
+    ignore_worker_failures: True  #ignora i worker che falliscono e non ferma l'allenamento
+    evaluation_parallel_to_training: True  #valutazione in parallelo
+    evaluation_interval: 1  #intervallo di valutazione
+    evaluation_num_episodes: 25  #durata della valutazione
+    evaluation_config:  #config della valutazione
+        explore: False  #esplorazione
+        env_config:
+            eps_schedule: [[0, 1.0e-02], [1, 1.0e-02]]  #epsilon law parameters
+    evaluation_num_workers: 25  #number of workers per valutazione
+    use_critic: True
+    use_gae: True
+    lambda: 0.98  #discount factor (=[0,1])
+    kl_coeff: 0.
+    sgd_minibatch_size: 1000  #grandezza batch per gradient descent
+    shuffle_sequences: True
+    num_sgd_iter: 30  #quante iterazioni di gradient descent
+    lr: 1.0e-04  #learning rate of the network = alpha
+    #lr_schedule: [[0, 1.0e-04], [20000000, 1.0e-06]]  #trainbatch size * training iterations
+    vf_loss_coeff: 0.5
+    clip_param: 0.1  #by how much (percentage) the policy can vary
+    vf_clip_param: 10.
+    env: environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env  #which is the environment
+    callbacks:
+        epsConstraintCallbacks
+
+
+
+    env_config:  #dictionary with all values that represent the environment
+        filename: ./Halo_L1_rv.txt
+        eps_schedule: [[0,1],[2000,1.0e-02]]  #2500 is equal to training_iterations
+        num_steps: 100  #number of iterations
+        Isp: 3000 #specific impulse
+        tf: 2.74291184  #maximum duration of the mission
+        Fmax: 4.0e-02  #maximum thrust of the engine [],  Fmax[N] = (value) * 2.7307388899605793e-06 * spacecraft mass
+        m_sc: 1.  #initial mass of the spacecraft
+        A_sc: 0.1
+        w: 0.02  #weight of the mass reward part
+        w_r: 1.
+        threebody: False
+        single_matrix: True  #extract only from first matrix (see extract.txt)
+        error_initial_position: True  #error on spacecraft initial position
+        dist_r_method: True
+        dr_max: 20.
+        dv_max: 0.001
+
+        
