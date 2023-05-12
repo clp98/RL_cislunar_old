@@ -62,6 +62,8 @@ coe_moon = [a_3, e_3, i_3, OMEGA_3, omega_3]
 
 A_sc = 1.
 
+
+
 def BER4BP_3dof_free(t, X0, data):
     """ 
     ODEs associated to the Bi-Elliptic Retricted 4-Body Problem + Solar Radiation Pressure (SRP)
@@ -153,6 +155,9 @@ def BER4BP_3dof_free(t, X0, data):
         m_dot, anu_3_dot], dtype=np.float64)
     
     return X_dot
+
+
+
 
 
 def BER4BP_3dof(t, X0, data):
