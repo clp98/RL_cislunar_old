@@ -1,4 +1,4 @@
-#Environment for the RL station keeping problem for a spacecraft around 
+#Environment for the RL station keeping problem for a spacecraft around
 #the moon orbiting in a Halo orbit around L2
 
 import gym
@@ -20,8 +20,8 @@ from environment.pyKepler import *
 class Moon_Station_Keeping_Env(AbstractMDP):
 
     def __init__(self, env_config):  #class constructor
-        
-        
+
+
         super().__init__(config=env_config)
 
         #observations: x, y, z, vx, vy, vz, m, t, dist_r, dist_v
@@ -32,12 +32,12 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.time_step=self.tf/float(self.num_steps)  #time step time_step
         self.dr_max /= l_star
         self.dv_max /= v_star
-       
-        self.num_obs=10  #number of observations
+
+        self.num_obs=11  #number of observations #10 without delta_C
         self.num_act=4  #number of actions
         self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))
         self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))
-        
+
         self.max_episode_steps=self.num_steps  #maximum number of episodes
         self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
 
@@ -57,7 +57,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.epsilon = self.epsilon0
 
 
-        
+
 
     def get_observation(self, state, control):  #get the current observation
 
@@ -68,15 +68,15 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         dist_v_obs = state['dist_v']
         self.r_from_L1 = state['r'] - self.r_L1
         theta = arctan2(self.r_from_L1[1], self.r_from_L1[0])/(2*np.pi)
-        #C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])
-        #_, _, _, C_Halo = choose_Halo(filename, single_matrix)
-        #delta_C = C_jacobi - C_Halo
+        C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])
+        _, _, _, C_Halo = choose_Halo(self.filename, self.single_matrix)
+        delta_C = C_jacobi - C_Halo
 
         observation=np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
-                               v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta])  #add delta_C
+                               v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta, delta_C])
 
         return observation
-        
+
 
 
 
@@ -88,43 +88,45 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         F=Fmod*((F_vect)/norm(F_vect))
 
         return F
-    
 
 
 
-    def next_state(self, state, control, time_step):  #propagate the state 
+
+    def next_state(self, state, control, time_step):  #propagate the state
 
 
 
         if self.threebody:  #CR3BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], \
-                       state['m']])  #current state 
+                       state['m']])  #current state
 
-            t_span=[state['t'], state['t']+time_step]  #time interval 
+            t_span=[state['t'], state['t']+time_step]  #time interval
 
-        
+
             #Events
             hitMoon.terminal = True
-            events = (hitMoon)
+            min_dist.terminal = False
+            events = (hitMoon, min_dist)
 
             data = np.concatenate((control, self.ueq), axis=None)
 
             #Solve equations of motion with CR3BP
             solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
                 args=(data,), rtol=1e-7, atol=1e-7)
-            
-            
-            
+
+
+
         else:  #BER4BP equations of motion
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
-                       state['v'][0], state['v'][1], state['v'][2], state['m'], state['anu_3']])  #current state 
-            
+                       state['v'][0], state['v'][1], state['v'][2], state['m'], state['anu_3']])  #current state
+
             t_span=[state['t'], state['t']+time_step]
 
             #Events
             hitMoon.terminal = True
-            events = (hitMoon)
+            min_dist.terminal = False
+            events = (hitMoon, min_dist)
 
             data = np.concatenate((control, self.ueq, self.r0_sun, self.v0_sun, coe_moon ),axis=None)
 
@@ -141,33 +143,34 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         state_next={'r':r_new, 'v':v_new,\
                     'm':m_new, 't':solution_int.t[-1], 'step':state['step']+1}  #next state
-        
+
         if not self.threebody:
             state_next['anu_3'] = solution_int.y[7][-1]
-            
-    
+
+
         if self.dist_r_method:
+
 
             #Solve equations of motion with CR3BP
             t_span = [state['t'], state['t']+self.T_Halo]
             if self.threebody:
                 s=np.concatenate((r_new, v_new), axis=None)
                 data = []
-                sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, 
+                sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events,
                                             args = (data,), \
                                             rtol=1e-7, atol=1e-7)
             else:
                 s=np.array([r_new[0], r_new[1], r_new[2], \
-                       v_new[0], v_new[1], v_new[2], m_new, state['anu_3']])  #current state 
+                       v_new[0], v_new[1], v_new[2], m_new, state['anu_3']])  #current state
                 data = np.concatenate((self.r0_sun, self.v0_sun, coe_moon ),axis=None)
                 sol_afterperiod = solve_ivp(fun=BER4BP_3dof_free, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
                     args=(data,), rtol=1e-7, atol=1e-7)
-            
+
             r_afterperiod = np.array([sol_afterperiod.y[0][-1], sol_afterperiod.y[1][-1], sol_afterperiod.y[2][-1]])
             v_afterperiod = np.array([sol_afterperiod.y[3][-1], sol_afterperiod.y[4][-1], sol_afterperiod.y[5][-1]])
 
-            delta_r=norm(r_afterperiod-r_new)  #error in distance
-            delta_v=norm(v_afterperiod-v_new)  #error in velocity
+            delta_r=norm(r_afterperiod-r_new)  #error in distance with dist_r_method
+            delta_v=norm(v_afterperiod-v_new)  #error in velocity with dist_r_method
 
 
         else:
@@ -181,15 +184,15 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
         return state_next
-    
 
 
-    
+
+
 
     def collect_reward(self, prev_state, state, control):  #defines the reward function
-        
+
         done=False  #episode not ended yet
-        
+
         delta_r = state['dist_r']
         delta_v = state['dist_v']
 
@@ -213,7 +216,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             reward = reward - 10.*delta_s
 
         reward /= 10.
-        
+
         return reward, done
 
 
@@ -222,7 +225,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         info={}
         info['episode_step_data']={}
- 
+
         info['episode_step_data']['x']=[prev_state['r'][0]]
         info['episode_step_data']['y']=[prev_state['r'][1]]
         info['episode_step_data']['z']=[prev_state['r'][2]]
@@ -231,7 +234,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         info['episode_step_data']['vz']=[prev_state['v'][2]]
         info['episode_step_data']['m']=[prev_state['m']]
         info['episode_step_data']['t']=[prev_state['t']]
-        info['episode_step_data']['Fx']=[control[0]] 
+        info['episode_step_data']['Fx']=[control[0]]
         info['episode_step_data']['Fy']=[control[1]]
         info['episode_step_data']['Fz']=[control[2]]
         info['episode_step_data']['F_mod']=[norm(control)]
@@ -263,7 +266,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_step_data']['F_mod'].append(norm(control))
             info['episode_step_data']['dist_r'].append(state['dist_r']*l_star)
             info['episode_step_data']['dist_v'].append(state['dist_v']*v_star*1e3)
-            
+
 
         return info
 
@@ -284,7 +287,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             anu_3 = np.random.uniform(0,360)
             self.state['anu_3']=anu_3*conv
 
-        
+
         self.r0, self.v0, self.T_Halo, _ = choose_Halo(self.filename, self.single_matrix)
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
@@ -296,7 +299,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.state['dist_v'] = norm(dv0)
             self.dist_r_mean = self.state['dist_r']
             self.dist_v_mean = self.state['dist_v']
-        else:  
+        else:
             self.state['r'] = self.r0
             self.state['v'] = self.v0
             self.state['dist_r']=0.

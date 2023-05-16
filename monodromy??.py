@@ -1,5 +1,6 @@
 from math import *
 from environment.BER4BP import *
+from environment.CR3BP import *
 
 #U_xx = 4.3809
 #omega_xy = 1.8626
@@ -15,40 +16,8 @@ from environment.BER4BP import *
 
 ######################################################################################################################################################################################################################
 
-#put into CR3BP
-#different reward approach
+#dist_r different approach
 
-def halo_dist_v(t, y, data):
-
-    v = np.array([state['v'][0], state['v'][1], state['v'][2]])
-    
-    distance_v = 
-
-    return distance_v
-
-
-
-
-# def halo_dist_v(t, y, data):
-
-#     v = np.array([state['v'][0], state['v'][1], state['v'][2]])
-#     r_moon = np.array([1 - mu, 0., 0.])  #moon position in relative system
-#     V_moon = 1738/v_star  #[km]
-#     distance_v = 
-
-#     return distance_v
-
-
-
-#put into next_state
-hitMoon.terminal = True
-halo_dist_r.direction = 1.
-events = (hitMoon, halo_dist_r, halo_dist_v)
-data = np.concatenate((control, self.ueq), axis=None)
-
-#Solve equations of motion with CR3BP
-#solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
-#               args=(data,), rtol=1e-7, atol=1e-7)
 
 
 
