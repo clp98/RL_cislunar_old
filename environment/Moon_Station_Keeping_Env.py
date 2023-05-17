@@ -49,7 +49,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.r_L2 = np.array([self.L2, 0, 0])
 
 
-        #Epsilon Law
+        #Epsilon Law algorithm
         self.iter0 = self.eps_schedule[0][0]
         self.epsilon0 = self.eps_schedule[0][1]
         self.iterf = self.eps_schedule[1][0]
@@ -67,10 +67,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         dist_r_obs = state['dist_r']
         dist_v_obs = state['dist_v']
         self.r_from_L1 = state['r'] - self.r_L1
-        theta = arctan2(self.r_from_L1[1], self.r_from_L1[0])/(2*np.pi)
-        C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])
+        theta = arctan2(self.r_from_L1[1], self.r_from_L1[0])/(2*np.pi)  #angle between the x-axis and the relative sc position vector
+
+        C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])  
         _, _, _, C_Halo = choose_Halo(self.filename, self.single_matrix)
-        delta_C = C_jacobi - C_Halo
+        delta_C = C_jacobi - C_Halo  #difference in Jacobi constant, additional observation
 
         observation=np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
                                v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta, delta_C])
@@ -116,14 +117,24 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             a_Halo = y_Halo_dot[3:6]  #Halo acceleration
             y_sc_dot = CR3BP_equations_ivp (t, y, data)
             a_sc = y_sc_dot[3:6]  #sc acceleration
-            #sc relative acceleration (wrt Halo)
-            a_rel_sc = a_sc - a_Halo  #relative sc velocity
+            a_rel_sc = a_sc - a_Halo  #sc relative acceleration (wrt Halo)
             
             
             r_rel_sc_dot = (v_rel_sc*r_rel_sc)/(norm(r_rel_sc))
             v_rel_sc_dot = (a_rel_sc*v_rel_sc)/(norm(v_rel_sc))
 
-            return norm(r_rel_sc_dot), norm(v_rel_sc_dot)
+            r_rel_sc_dot_norm = norm(r_rel_sc_dot)
+            v_rel_sc_dot_norm = norm(v_rel_sc_dot)
+
+            return r_rel_sc_dot_norm, v_rel_sc_dot_norm
+        
+        #t_events
+        #y_events
+        #dist_r = min(y_events)
+        #ts = solution_int.t_events
+            #y_events = 
+            #rs = solution_int.y[0:3]
+            #vs = solution_int.y[3:6]
 
 
 
@@ -146,10 +157,6 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             solution_int = solve_ivp(fun=CR3BP_equations_controlled_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
                 args=(data,), rtol=1e-7, atol=1e-7)
             
-            #ts = solution_int.t_events
-            #y_events = 
-            #rs = solution_int.y[0:3]
-            #vs = solution_int.y[3:6]
 
 
 
@@ -327,7 +334,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         self.r0, self.v0, self.T_Halo, _ = choose_Halo(self.filename, self.single_matrix)
 
-        if self.error_initial_position:  #error on initial position and velocity is present (the error value is random)
+        if self.error_initial_position:  #error on initial position and velocity is present (the error value is random but has a maximum)
             dr0 = np.random.uniform(-self.dr_max, self.dr_max, 3)  #initial position error vector
             dv0 = np.random.uniform(-self.dv_max, self.dv_max, 3)  #initial velocity error vector
             self.state['r'] = self.r0 + dr0

@@ -1,5 +1,4 @@
 #Equations and functions for the moon station keeping problem with RL
-
 #functions: running_mean, choose_Halo, rv_Halo
 
 import numpy as np
@@ -10,12 +9,12 @@ from environment.rk4 import *
 
 
 #System constants
-solar_day=86400 #solar day [s]
-mu=0.01215059 #mass ratio []
-l_star=3.844e+5 #system characteristic length [km]
-t_star=3.751903e+5 #system characteristic time [s]
-v_star=l_star/t_star #system characteristic velocity [km/s]
-g0=9.80665e-3 #sea-level gravitational acceleration [km/s^2]
+solar_day=86400  #solar day [s]
+mu=0.01215059  #mass ratio []
+l_star=3.844e+5  #system characteristic length [km]
+t_star=3.751903e+5  #system characteristic time [s]
+v_star=l_star/t_star  #system characteristic velocity [km/s]
+g0=9.80665e-3  #sea-level gravitational acceleration [km/s^2]
 
 
 
