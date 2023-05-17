@@ -255,34 +255,3 @@ def CR3BP_equations_ivp(t, state, data):  #with control
     return state_dot
 
 
-
-
-
-#different dist_r approach
-
-def min_dist(t, y, data):  #minimum distance in position and velocity from the halo
-
-    r_Halo = y[0:3]
-    v_Halo = y[3:6]
-
-    #sc absolute and relative velocities (wrt Halo)
-    r_sc = np.array([state['r'][0], state['r'][1], state['r'][2]])  #absolute sc velocity
-    r_rel_sc = r_sc - r_Halo  #relative sc velocity
-
-    #sc absolute and relative velocities (wrt Halo)
-    v_sc = np.array([state['v'][0], state['v'][1], state['v'][2]])  #absolute sc velocity
-    v_rel_sc = v_sc - v_Halo  #relative sc velocity
-
-    #sc relative acceleration (wrt Halo)
-    a_rel_sc = a_sc - a_Halo  #relative sc velocity
-    #obtain sc and Halo accelerations
-    y_Halo_dot = CR3BP_equations_ivp (t, y_Halo, data)
-    a_Halo = y_Halo_dot[3:6]  #Halo acceleration
-    y_sc_dot = CR3BP_equations_ivp (t, y, data)
-    a_sc = y_sc_dot[3:6]  #sc acceleration
-
-
-    r_rel_sc_dot = (v_rel_sc*r_rel_sc)/(norm(r_rel_sc))
-    v_rel_sc_dot = (a_rel_sc*v_rel_sc)/(norm(v_rel_sc))
-
-    return norm(r_rel_sc_dot), norm(v_rel_sc_dot)
