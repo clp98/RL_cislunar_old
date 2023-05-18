@@ -50,23 +50,23 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
     train_batch_size: 10000  #step complessivi di tutti i worker di tutti gli environment
     model:  #definisce la rete neurale
-        # #MLP
-        # fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer, 
-        # fcnet_activation: tanh  #activation function used
-        # use_lstm: False
-        # vf_share_layers: False  #False --> rete separata (vf=value function)
-        # free_log_std: True  #True --> valori separati dalla rete
-
-        #LSTM
-        fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer, 
+        #MLP
+        fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer, 
         fcnet_activation: tanh  #activation function used
-        use_lstm: True
-        max_seq_len: 25
-        lstm_cell_size: 20
-        lstm_use_prev_action: True
-        lstm_use_prev_reward: False
-        vf_share_layers: True  #False --> rete separata (vf=value function)
-        free_log_std: False  #True --> valori separati dalla rete
+        use_lstm: False
+        vf_share_layers: False  #False --> rete separata (vf=value function)
+        free_log_std: True  #True --> valori separati dalla rete
+
+        # #LSTM
+        # fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer, 
+        # fcnet_activation: tanh  #activation function used
+        # use_lstm: True
+        # max_seq_len: 25
+        # lstm_cell_size: 20
+        # lstm_use_prev_action: True
+        # lstm_use_prev_reward: False
+        # vf_share_layers: True  #False --> rete separata (vf=value function)
+        # free_log_std: False  #True --> valori separati dalla rete
 
     gamma: 0.999  #discount factor
     log_level: INFO  #che info voglio sia stampata a schermo
@@ -79,7 +79,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     evaluation_config:  #config della valutazione
         explore: False  #esplorazione
         env_config:
-            eps_schedule: [[0, 1.0e-02], [1, 1.0e-02]]  #epsilon law parameters
+            eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]  #epsilon law parameters
     evaluation_num_workers: 4  #number of workers per valutazione
     use_critic: True
     use_gae: True
@@ -88,7 +88,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
     sgd_minibatch_size: 1000  #grandezza batch per gradient descent
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
-    lr: 1.0e-05  #learning rate of the network = alpha
+    lr: 1.0e-04  #learning rate of the network = alpha
     #lr_schedule: [[0, 1.0e-04], [20000000, 1.0e-06]]  #trainbatch size * training iterations
     vf_loss_coeff: 0.5
     clip_param: 0.1  #by how much (percentage) the policy can vary
@@ -101,7 +101,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
     env_config:  #dictionary with all values that represent the environment
         filename: ./Halo_L1_rv.txt
-        eps_schedule: [[0,1],[2000,1.0e-02]]  #2500 is equal to training_iterations
+        eps_schedule: [[0,1],[2000,1.0e-03]]  #2500 is equal to training_iterations
         num_steps: 100  #number of iterations
         Isp: 3000 #specific impulse
         tf: 2.74291184  #maximum duration of the mission
@@ -114,7 +114,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
 
         single_matrix: True  #extract only from first matrix (see extract.txt)
         error_initial_position: True  #error on spacecraft initial position
-        dist_r_method: True
+        dist_r_method: 3  #1: dist-r lungo la Halo, 2: dist-r ortogonale alla Halo
         dr_max: 20.
         dv_max: 0.001
 

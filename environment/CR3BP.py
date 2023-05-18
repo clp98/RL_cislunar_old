@@ -212,6 +212,39 @@ def hitMoon(t, y, data):
 
 
 
+ #different dist_r approach - events function
+def min_dist_r(t, y, data):  #minimum distance in position and velocity from the halo
+
+    r_Halo = y[0:3]
+    v_Halo = y[3:6]
+
+    #sc absolute and relative velocities (wrt Halo)
+    r_sc = data[0:3]  #absolute sc velocity
+    r_rel_Halo = r_Halo - r_sc  #relative sc velocity
+
+    r_rel_Halo_dot = dot(v_Halo, r_rel_Halo)/(norm(r_rel_Halo))
+   
+
+    return r_rel_Halo_dot
+        
+
+
+def min_dist_v(t, y, data):
+
+    v_Halo = y[3:6]
+
+    #sc absolute and relative velocities (wrt Halo)
+    v_sc = data[3:6] #np.array([state['v'][0], state['v'][1], state['v'][2]])  #absolute sc velocity
+    v_rel_Halo = v_Halo - v_sc  #relative sc velocity
+
+    a_Halo = CR3BP_equations_ivp(t, y, data)[3:6]
+
+    v_rel_Halo_dot = dot(a_Halo, v_rel_Halo)/(norm(v_rel_Halo))
+
+
+    return v_rel_Halo_dot
+
+
 
 def CR3BP_equations_ivp(t, state, data):  #with control
     '''
