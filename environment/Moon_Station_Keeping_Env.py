@@ -56,7 +56,12 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.epsilonf = self.eps_schedule[1][1]
         self.epsilon = self.epsilon0
 
+        # Propagate the Halos
+        self.num_steps_Halo = self.num_steps
+        if self.dist_r_method == 3:
+            self.num_steps_Halo = self.num_steps_Halo * 5
 
+        self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf)
 
 
     def get_observation(self, state, control):  #get the current observation
@@ -338,8 +343,17 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             anu_3 = np.random.uniform(0,360)
             self.state['anu_3']=anu_3*conv
 
+        # Choose the Halo
+        k=randint(0,self.num_steps_Halo)
+        i=randint(0,self.num_Halos)  #select a random matrix 
 
-        self.r0, self.v0, self.T_Halo, self.C_Halo = choose_Halo(self.filename, self.single_matrix)
+        self.r_Halo = self.r_Halo_all[i][k:k+self.num_steps_Halo]
+        self.v_Halo = self.v_Halo_all[i][k:k+self.num_steps_Halo]
+        self.T_Halo = self.T_Halo_all[i]
+        self.C_Halo = self.C_Halo_all[i]
+
+        self.r0 = self.r_Halo[0]
+        self.v0 = self.v_Halo[0]
 
         if self.error_initial_position:  #error on initial position and velocity is present (the error value is random but has a maximum)
             dr0 = np.random.uniform(-self.dr_max, self.dr_max, 3)  #initial position error vector
@@ -358,11 +372,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.dist_r_mean=0.
             self.dist_v_mean=0.
 
-        num_steps_Halo = self.num_steps
-        if self.dist_r_method == 3:
-            num_steps_Halo = num_steps_Halo * 5
-        self.r_Halo,self.v_Halo = rv_Halo(self.r0, self.v0, 0, self.tf, num_steps_Halo)  #recall rv_Halo function to obtain reference Halo position and velocity
-
+       
         observation=self.get_observation(self.state, control)  #first observation to be returned as output
 
         return observation

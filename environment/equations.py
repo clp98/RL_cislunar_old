@@ -58,6 +58,32 @@ def choose_Halo(filename, single_matrix):
     return r0, v0, T_Halo, C_Halo
     
 
+#chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
+def data_Halos(filename, num_steps, tf):
+    r0_Halo_all = []
+    v0_Halo_all = []
+    T_Halo_all = []
+    C_Halo_all = []
+    filename.readline()
+    file_all=filename.readlines()
+    for line in file_all: #read line
+        line=line.split()
+        state=np.array(line).astype(np.float64) #non-dimensional data
+        
+        #save data
+        r0_Halo_all.append(np.array([state[0],state[1],state[2]]))
+        v0_Halo_all.append(np.array([state[3],state[4],state[5]]))
+        T_Halo_all.append(state[6])
+        C_Halo_all.append(Jacobi_const(r0_Halo_all[0], r0_Halo_all[1], r0_Halo_all[2], v0_Halo_all[3], v0_Halo_all[4], v0_Halo_all[5]))
+    
+    r_Halo_all = []
+    v_Halo_all = []
+    for i in range(len(r0_Halo_all)):
+        r_Halo_i, v_Halo_i = rv_Halo(r0_Halo_all[i], v0_Halo_all[i], 0., tf, num_steps)
+        r_Halo_all.append(r_Halo_i)
+        v_Halo_all.append(v_Halo_i)
+
+    return r_Halo_all, v_Halo_all, T_Halo_all, C_Halo_all
 
 
 #obtain r_Halo and v_Halo vectors of the reference Halo orbit

@@ -112,7 +112,7 @@ config:  #all the data necessary requested by Ray library   (driver = cio che fa
         w_r: 1.
         threebody: True
 
-        single_matrix: True  #extract only from first matrix (see extract.txt)
+        num_Halos: 1
         error_initial_position: True  #error on spacecraft initial position
         dist_r_method: 3  #1: dist-r lungo la Halo, 2: dist-r ortogonale alla Halo
         dr_max: 20.

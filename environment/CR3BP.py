@@ -288,3 +288,23 @@ def CR3BP_equations_ivp(t, state, data):  #with control
     return state_dot
 
 
+def Jacobi_const(x, y, z, vx, vy, vz):
+    """
+    Evaluate the Jacobi constant C.
+
+    Args:
+        x, y, z: spacecraft position (nondim)
+        vx, vy, vz: spacecraft velocity (nondim)
+
+    Return:
+        C: Jacobi constant
+    """
+
+    #Auxiliary variables
+    r13 = sqrt((x+mu)**2 + y**2 + z**2) #Earth-S/C distance
+    r23 = sqrt((x-1.+mu)**2 + y**2 + z**2) #Moon-S/C distance
+
+    #Jacobi constant
+    C = 2.*((1. - mu)/r13 + mu/r23 + 0.5*(x**2 + y**2)) - (vx**2 + vy**2 + vz**2)
+
+    return C
