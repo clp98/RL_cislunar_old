@@ -1,8 +1,8 @@
 #Solve the station keeping RL problem
 
-from pyrlprob.problem import RLProblem  #from pyrlprob.problem
+from pyrlprob.problem import RLProblem 
 
-#configuration file
+#Configuration file
 config_file='config_files/moon_station_keeping_config.yaml'
 
 #Define RL problem

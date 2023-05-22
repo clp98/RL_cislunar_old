@@ -1,5 +1,5 @@
 #Read txt file, extract initial conditions and propagate them to get Halo orbit
-#(this script will be use only once in order to get the L1 Halo orbit random initial condition)
+#(this will be use only once in order to get the L1 Halo orbit random initial condition)
 
 import os
 import sys

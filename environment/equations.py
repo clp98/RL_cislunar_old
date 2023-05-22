@@ -1,5 +1,5 @@
 #Equations and functions for the moon station keeping problem with RL
-#functions: running_mean, choose_Halo, rv_Halo
+#functions: running_mean, choose_Halo, data_Halos, rv_Halo
 
 import numpy as np
 from random import randint
@@ -9,16 +9,17 @@ from environment.rk4 import *
 
 
 #System constants
-solar_day=86400  #solar day [s]
-mu=0.01215059  #mass ratio []
-l_star=3.844e+5  #system characteristic length [km]
-t_star=3.751903e+5  #system characteristic time [s]
-v_star=l_star/t_star  #system characteristic velocity [km/s]
-g0=9.80665e-3  #sea-level gravitational acceleration [km/s^2]
+solar_day = 86400  #solar day [s]
+mu = 0.01215059  #mass ratio []
+l_star = 3.844e+5  #system characteristic length [km]
+t_star = 3.751903e+5  #system characteristic time [s]
+v_star = l_star/t_star  #system characteristic velocity [km/s]
+g0 = 9.80665e-3  #sea-level gravitational acceleration [km/s^2]
 
 
 
-#calculates the mean of the state at every step
+
+#Calculates the mean of the state at every step
 def running_mean(mean, step, new_value):  
         
     new_mean=1./float(step)*((float(step)-1.)*mean+new_value)
@@ -27,7 +28,8 @@ def running_mean(mean, step, new_value):
     
 
 
-#chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
+
+#Chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
 def choose_Halo(filename, single_matrix):
     with open(filename, 'r') as f:
         line=f.readline()
@@ -58,23 +60,27 @@ def choose_Halo(filename, single_matrix):
     return r0, v0, T_Halo, C_Halo
     
 
+
+
 #chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
-def data_Halos(filename, num_steps, tf):
+def data_Halos(filename, num_steps, tf, num_Halo):
     r0_Halo_all = []
     v0_Halo_all = []
     T_Halo_all = []
     C_Halo_all = []
-    filename.readline()
-    file_all=filename.readlines()
-    for line in file_all: #read line
-        line=line.split()
-        state=np.array(line).astype(np.float64) #non-dimensional data
-        
-        #save data
-        r0_Halo_all.append(np.array([state[0],state[1],state[2]]))
-        v0_Halo_all.append(np.array([state[3],state[4],state[5]]))
-        T_Halo_all.append(state[6])
-        C_Halo_all.append(Jacobi_const(r0_Halo_all[0], r0_Halo_all[1], r0_Halo_all[2], v0_Halo_all[3], v0_Halo_all[4], v0_Halo_all[5]))
+    with open(filename, 'r') as file:
+        # file.readline()
+        file_all=file.readlines()
+        for i in range(num_Halo): #read line
+            line = file_all[i]
+            line=line.split()
+            state=np.array(line).astype(np.float64) #non-dimensional data
+            
+            #save data
+            r0_Halo_all.append(np.array([state[0],state[1],state[2]]))
+            v0_Halo_all.append(np.array([state[3],state[4],state[5]]))
+            T_Halo_all.append(state[6])
+            C_Halo_all.append(state[10])
     
     r_Halo_all = []
     v_Halo_all = []
@@ -84,6 +90,8 @@ def data_Halos(filename, num_steps, tf):
         v_Halo_all.append(v_Halo_i)
 
     return r_Halo_all, v_Halo_all, T_Halo_all, C_Halo_all
+
+
 
 
 #obtain r_Halo and v_Halo vectors of the reference Halo orbit
