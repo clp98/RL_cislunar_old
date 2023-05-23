@@ -257,8 +257,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
         self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
-        self.epsilon_r=self.epsilon*1e+05/l_star
-        self.epsilon_v=self.epsilon*1/v_star
+        self.epsilon_r=self.epsilon*self.epsilon_r_scale/l_star
+        self.epsilon_v=self.epsilon*self.epsilon_v_scale/v_star
         delta_m=prev_state['m']-state['m']
 
         if self.wild_reward:
@@ -287,14 +287,22 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             if state['step']==self.num_steps:
                 done=True
             if self.failure == 1:
-                reward = reward - 100.*self.max_dist_r/l_star*(self.num_steps - state['step'])
-                #reward = reward - 100*(self.num_steps - state['step'])
+                if self.max_dist_r != -1:
+                    reward = reward - 100.*self.max_dist_r/l_star*(self.num_steps - state['step'])
+                    #reward = reward - 100*(self.num_steps - state['step'])
+                else:
+                    reward = reward - 10*delta_s*(self.num_steps - state['step'])
                 done=True
-            elif delta_r > self.max_dist_r/l_star:  #hard done if dist_r>max_dist_r
-                reward = reward - 10.*self.max_dist_r/l_star*(self.num_steps - state['step'])
-                done=True
+            else:
+                if self.max_dist_r != -1:
+                    if delta_r > self.max_dist_r/l_star:  #hard done if dist_r>max_dist_r
+                        reward = reward - 10.*self.max_dist_r/l_star*(self.num_steps - state['step'])
+                        done=True
+                else:
+                    if delta_r > 10*self.epsilon_r:
+                        reward = reward - 10*delta_s*(self.num_steps - state['step'])
 
-            #reward = reward/10.
+            reward = reward/10.
 
 
 
@@ -357,7 +365,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         return info
 
-
+#show_dist_from_Halo
 
 
     def reset(self):  #reinitialize the process
