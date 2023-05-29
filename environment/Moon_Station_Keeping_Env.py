@@ -35,16 +35,16 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         self.num_obs=11  #number of observations 
         self.num_act=4  #number of actions
-        self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))
-        self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))
+        self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))  #observation box
+        self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))  #action box
 
         self.max_episode_steps=self.num_steps  #maximum number of episodes
         self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
 
         self.r_Halo_ref=0.83  #approximated r0 of the Halo (taken from the txt)
         self.v_Halo_ref=0.13  #approximated v0 of the Halo (taken from the txt)
-        self.L1 = 0.8369  #L1 x position
-        self.L2 = 1.1557  #L2 x position
+        self.L1 = 0.8369  #L1 x-position
+        self.L2 = 1.1557  #L2 x-position
         self.r_L1 = np.array([self.L1, 0, 0])
         self.r_L2 = np.array([self.L2, 0, 0])
 
@@ -127,7 +127,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
 
-        else:  #4 body dynamics
+        else:  #4 body dynamics (add moon anomaly in the state)
             s=np.array([state['r'][0], state['r'][1], state['r'][2], \
                        state['v'][0], state['v'][1], state['v'][2], state['m'], state['anu_3']])  #current state
 
@@ -157,6 +157,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             state_next['anu_3'] = solution_int.y[7][-1]  #add moon anomaly if 4-body dynamics
 
 
+        #dist_r_method choice
 
         if self.dist_r_method==1:
 
@@ -179,8 +180,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             r_afterperiod = np.array([sol_afterperiod.y[0][-1], sol_afterperiod.y[1][-1], sol_afterperiod.y[2][-1]])
             v_afterperiod = np.array([sol_afterperiod.y[3][-1], sol_afterperiod.y[4][-1], sol_afterperiod.y[5][-1]])
 
-            delta_r=norm(r_afterperiod-r_new)  #error in distance with dist_r_method
-            delta_v=norm(v_afterperiod-v_new)  #error in velocity with dist_r_method
+            delta_r = norm(r_afterperiod-r_new)  #error in distance with dist_r_method
+            delta_v = norm(v_afterperiod-v_new)  #error in velocity with dist_r_method
 
         elif self.dist_r_method==2:
             
@@ -249,19 +250,19 @@ class Moon_Station_Keeping_Env(AbstractMDP):
     def collect_reward(self, prev_state, state, control):  #defines the reward function
         
         
-        done=False  #episode not ended yet
+        done = False  #episode not ended yet
 
         delta_r = state['dist_r']
         delta_v = state['dist_v']
 
-        self.dist_r_mean=running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
-        self.dist_v_mean=running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
+        self.dist_r_mean = running_mean(self.dist_r_mean, state['step'], state['dist_r'])  #mean of dist_r
+        self.dist_v_mean = running_mean(self.dist_v_mean, state['step'], state['dist_v'])  #mean of dist_v
 
-        self.epsilon_r=self.epsilon*self.epsilon_r_scale/l_star
-        self.epsilon_v=self.epsilon*self.epsilon_v_scale/v_star
-        delta_m=prev_state['m']-state['m']
+        self.epsilon_r = self.epsilon*self.epsilon_r_scale/l_star
+        self.epsilon_v = self.epsilon*self.epsilon_v_scale/v_star
+        delta_m = prev_state['m']-state['m']
 
-        if self.wild_reward:
+        if self.wild_reward:  #simpler reward definition
             reward = 1 - delta_m
             if delta_r <= self.epsilon_r:
                 reward = reward + 1
@@ -279,25 +280,25 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             reward = reward/10
             
         else:
-            delta_s=max(max((delta_r - self.epsilon_r)*self.w_r, delta_v - self.epsilon_v), 0)
+            delta_s = max(max((delta_r - self.epsilon_r)*self.w_r, delta_v - self.epsilon_v), 0)
             
 
             reward = -(delta_s+self.w*delta_m)  #reward function definition
 
             if state['step']==self.num_steps:
-                done=True
+                done = True
             if self.failure == 1:
                 if self.max_dist_r != -1:
                     reward = reward - 100.*self.max_dist_r/l_star*(self.num_steps - state['step'])
                     #reward = reward - 100*(self.num_steps - state['step'])
                 else:
                     reward = reward - 10*delta_s*(self.num_steps - state['step'])
-                done=True
+                done = True
             else:
                 if self.max_dist_r != -1:
-                    if delta_r > self.max_dist_r/l_star:  #hard done if dist_r>max_dist_r
+                    if delta_r > self.max_dist_r/l_star:  #hard done if dist_r > max_dist_r
                         reward = reward - 10.*self.max_dist_r/l_star*(self.num_steps - state['step'])
-                        done=True
+                        done = True
                 else:
                     if delta_r > 10*self.epsilon_r:
                         reward = reward - 10*delta_s*(self.num_steps - state['step'])
@@ -406,8 +407,9 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.state['v'] = self.v0 + dv0
             self.state['dist_r'] = norm(dr0)
             self.state['dist_v'] = norm(dv0)
-            self.dist_r_mean = self.state['dist_r']
-            self.dist_v_mean = self.state['dist_v']
+            self.dist_r_mean = self.state['dist_r']  #mean error in position
+            self.dist_v_mean = self.state['dist_v']  #mean error in velocity
+
         else:  #no error on initial position and velocity
             self.state['r'] = self.r0
             self.state['v'] = self.v0
@@ -416,7 +418,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.dist_r_mean=0.
             self.dist_v_mean=0.
         
-        if self.show_dist_from_Halo:
+        if self.show_dist_from_Halo:  #show perp distance from the reference orbit
             self.state['dist_r_from_Halo'] = self.state['dist_r']
             self.state['dist_v_from_Halo'] = self.state['dist_v']
 

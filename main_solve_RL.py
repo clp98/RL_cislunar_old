@@ -6,7 +6,7 @@ from pyrlprob.problem import RLProblem
 config_file='config_files/moon_station_keeping_config_COMPUTERONE1.yaml'
 
 #Define RL problem
-SKproblem=RLProblem(config_file)
+SKproblem = RLProblem(config_file)  #Station Keeping problem
 
 #Solve RL problem
 trainer_dir, exp_dirs, last_cps, best_cp_dir = SKproblem.solve(evaluate=True, postprocess=True, debug=False)

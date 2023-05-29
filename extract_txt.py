@@ -1,5 +1,4 @@
 #Read txt file, extract initial conditions and propagate them to get Halo orbit
-#(this will be use only once in order to get the L1 Halo orbit random initial condition)
 
 import os
 import sys
@@ -51,7 +50,6 @@ f_out_L1.write("%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\n" \
     % ("x", "y", "z", "vx", "vy", "vz", "C", "T"))
 
 
-#Orbital Propagation
 N_orbits=len(x_Halo_L1)-1
 N_times=101
 
