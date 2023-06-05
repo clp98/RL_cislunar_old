@@ -11,6 +11,9 @@ from numpy import sqrt
 from numpy.linalg import norm
 from environment.BER4BP import *
 #from environment.pyKepler import *
+from numbalsoda import lsoda_sig, lsoda
+from numba import njit, cfunc
+
 
 
 def CR3BP_equations_controlled(t, state, state_dot, data):  #with control
@@ -308,3 +311,84 @@ def Jacobi_const(x, y, z, vx, vy, vz):
     C = 2.*((1. - mu)/r13 + mu/r23 + 0.5*(x**2 + y**2)) - (vx**2 + vy**2 + vz**2)
 
     return C
+
+
+
+
+
+def CR3BP_eqs_free_lsoda(t, s, sdot, data): #with control but solved with lsoda resolver
+    """
+    Right-hand side of the system of equations of motion of a spacecraft
+    in the Earth-Moon circular restricted three body problem (CR3BP).
+    The (nondimensioanl) state components are propagated with respect to the system barycenter in the
+    Earth-Moon rotating reference frame.
+
+    Args:
+        t - (float) time (nondim)
+        s - (np.array) spacecraft state (position, velocity, mass) (nondim)
+
+    Return:
+        s_dot - (np.array) derivatives of the spacecraft state (nondim)
+    """
+
+    #State variables
+
+    #spacecraft position
+    x = s[0]
+    y = s[1]
+    z = s[2]
+
+    #spacecraft velocity
+    vx = s[3]
+    vy = s[4]
+    vz = s[5]
+
+    #Auxiliary variables
+    r13 = sqrt((x+mu)**2 + y**2 + z**2) #Earth-S/C distance
+    r23 = sqrt((x-1.+mu)**2 + y**2 + z**2) #Moon-S/C distance
+
+    #Equations of motion
+    sdot[0] = vx
+    sdot[1] = vy
+    sdot[2] = vz
+    sdot[3] = 2.*vy + x - (1.-mu)*(x+mu)/(r13**3) - mu*(x-1.+mu)/(r23**3)
+    sdot[4] = -2.*vx + y - (1.-mu)*y/(r13**3) - mu*y/(r23**3)
+    sdot[5] = -(1.-mu)*z/(r13**3) - mu*z/(r23**3)
+
+
+
+
+@njit
+def solve_ivp_lsoda(funcptr, s, t_eval, rtol, atol, data = None):
+
+    if data is None:
+        sol, success = lsoda(funcptr, s, t_eval, rtol = rtol, atol = atol)
+    else:
+        sol, success = lsoda(funcptr, s, t_eval, data = data, rtol = rtol, atol = atol)
+
+    return sol, success
+
+
+
+
+def propagate_cr3bp_free(s, t_eval):
+    """
+    Propagate CR3BP equation with thrust term
+
+    Args:
+        s (np.array): state
+        t_eval (list): array of times at which to store the computed solution
+
+    Return:
+        sol: new states
+
+    """
+
+    #Integration
+    if t_eval[-1] == t_eval[0]:
+        return s
+
+    funptr = CR3BP_eqs_free_lsoda.address
+    sol, _ = solve_ivp_lsoda(funptr, s, t_eval, 1.0e-07, 1.0e-07)
+
+    return sol 
