@@ -1,3 +1,5 @@
+#Bi-Elliptic Restricted 4 Body Problem dynamics
+
 import numpy as np
 from numpy import sqrt, cos, sin
 from random import random
@@ -7,42 +9,40 @@ from environment.pyKepler import *
 
 
 # Math
-conv = np.pi / 180.		                    # Deg to rad
-g0 = 9.80665e-3                             # sea-level gravitational acceleration, km/s^2
-                               # Radius of third body, km
-SRP_1AU = 4.55987e-06                         # solar radiation pressure at 1AU, Pa
+conv = np.pi / 180.		                    
+g0 = 9.80665e-3  #sea-level gravitational acceleration, km/s^2
+SRP_1AU = 4.55987e-06  #solar radiation pressure at 1AU, Pa
+
 # Astrodynamics
-solar_day = 86400.                          # one solar day [s]
-AU = 1.495978707e8                          # astronomical unit [km]                             # universal gravitational constant [km^3⋅kg–1⋅s–2]
-GM_1_d = 132712440018.	                    # Gravitational parameter  (Sun) [km^3/s^2]
-GM_2_d = 398600.			                    # Gravitational parameter (body 2) [km^3/s^2]
-GM_3_d = 4905.			                    # Gravitational parameter (body 3) [km^3/s^2]
-mu_ref_d = GM_2_d + GM_3_d	                # Gravitational parameter (adjoint) [km^3/s^2]
+solar_day = 86400.  #one solar day [s]
+AU = 1.495978707e8  #astronomical unit [km]        
+GM_1_d = 132712440018.  #Gravitational parameter  (Sun) [km^3/s^2]
+GM_2_d = 398600.  #Gravitational parameter (body 2) [km^3/s^2]
+GM_3_d = 4905.  #Gravitational parameter (body 3) [km^3/s^2]
+mu_ref_d = GM_2_d + GM_3_d  #Gravitational parameter (adjoint) [km^3/s^2]
 sigma_d = mu_ref_d + GM_1_d
+
 # Orbital elements
-a_2_d = AU				                                    # Semi-major axis (body 2-3) [km]
-e_2 = 0.017			                                            # Eccentricity (body 2-3)
-i_2 = 0		                                        # Inclination of body 2-3's orbit (wrt to the ecliptic) [rad]
-p_2_d = a_2_d * (1 - e_2**2)	                                        # Semilatus rectum [km]
-omega_2 = 0			                                    # Argument of periapsis [rad]
-OMEGA_2 = 0			                                    # RAAN  [rad]
-n_2_d = np.sqrt(sigma_d / a_2_d**3)                                     # Mean motion
-
-
-a_3_d = 3.844e+5				                # Semi-major axis (body 2-3) [km]
-e_3 = 0.			                        # Eccentricity (body 2-3)
-i_3 = 23.5*conv	          		        # Inclination of body 3 orbit (wrt to ICRS) [rad]
-omega_3 = 0.		                # Argument of periapsis [rad]
-OMEGA_3 = 0.			            # RAAN [rad]
+a_2_d = AU  #Semi-major axis (body 2-3) [km]
+e_2 = 0.017  #Eccentricity (body 2-3)
+i_2 = 0  #Inclination of body 2-3's orbit (wrt to the ecliptic) [rad]
+p_2_d = a_2_d * (1 - e_2**2)  # Semilatus rectum [km]
+omega_2 = 0  #Argument of periapsis [rad]
+OMEGA_2 = 0  #RAAN  [rad]
+n_2_d = np.sqrt(sigma_d / a_2_d**3)  #Mean motion
+a_3_d = 3.844e+5  #Semi-major axis (body 2-3) [km]
+e_3 = 0.  #Eccentricity (body 2-3)
+i_3 = 23.5*conv  #inclination of body 3 orbit (wrt to ICRS) [rad]
+omega_3 = 0.  #Argument of periapsis [rad]
+OMEGA_3 = 0.  #RAAN [rad]
 
 # Conversion units (3-DoF)
-l_star = a_3_d								# Length [km]
-t_star = np.sqrt(a_3_d**3 / mu_ref_d)	    # Time [s]
-v_star = l_star / t_star						# Velocity [km/s]
-a_star = v_star / t_star                       # Acceleration [km/s^2]
-m_star = 1000.                               # Mass [kg]
-f_star = m_star * a_star                       # Force [kN]
-
+l_star = a_3_d  #characteristic length [km]
+t_star = np.sqrt(a_3_d**3 / mu_ref_d)  #characteristic time [s]
+v_star = l_star / t_star  #characteristic velocity [km/s]
+a_star = v_star / t_star  #characteristic acceleration [km/s^2]
+m_star = 1000.  #characteristic mass [kg]
+f_star = m_star * a_star  #characteristic force [kN]
 
 mu_third = GM_3_d 
 mu_sys = GM_2_d + GM_3_d
@@ -51,13 +51,13 @@ sigma_first = (GM_1_d / mu_sys) + 1.
 #Non-dimensional quantities
 a_2 = a_2_d / l_star
 a_3 = a_3_d / l_star
-mu = GM_3_d / mu_ref_d		                # Gravitational parameter body 3 (non-dimensional)
-sigma = sigma_d / mu_ref_d                  # Total mass ratio
+mu = GM_3_d / mu_ref_d  #Gravitational parameter body 3 (non-dimensional)
+sigma = sigma_d / mu_ref_d  #Total mass ratio
 
-# Initial orbital parameters of B around body 1
+#Initial orbital parameters of B around body 1
 coe_sun = [a_2, e_2, i_2, OMEGA_2, omega_2]
 
-# Initial orbital parameters of body 3 around body 2
+#Initial orbital parameters of body 3 around body 2
 coe_moon = [a_3, e_3, i_3, OMEGA_3, omega_3]
 
 A_sc = 1.
@@ -83,7 +83,7 @@ def BER4BP_3dof_free(t, X0, data):
         X_dot (np.array): derivatives of the state variables
     """
 
-    # Initial conditions
+    #Initial conditions
     r_RTN_x = X0[0]
     r_RTN_y = X0[1]
     r_RTN_z = X0[2]
@@ -95,16 +95,16 @@ def BER4BP_3dof_free(t, X0, data):
     
     r_RTN = np.array([r_RTN_x, r_RTN_y, r_RTN_z], dtype=np.float64)
 
-    # Data
+    #Data
     R0_ICRS = data[0:3]
     V0_ICRS = data[3:6]
     coe_3 = data[6:11]
 
-    # Propagation of Keplerian motion of B around P1
+    #Propagation of Keplerian motion of B around P1
     Rt_ICRS, Vt_ICRS = propagate_lagrangian(R0_ICRS, V0_ICRS, t, sigma)
     Rt_RTN = ICRS2RTN(Rt_ICRS, list(coe_3) + [anu_3])
 
-	# Other
+	#Other
     a = coe_3[0]
     e = coe_3[1]
     p = a * (1. - e**2)
@@ -181,7 +181,7 @@ def BER4BP_3dof(t, X0, data):
         X_dot (np.array): derivatives of the state variables
     """
 
-    # Initial conditions
+    #Initial conditions
     r_RTN_x = X0[0]
     r_RTN_y = X0[1]
     r_RTN_z = X0[2]
@@ -193,18 +193,18 @@ def BER4BP_3dof(t, X0, data):
     
     r_RTN = np.array([r_RTN_x, r_RTN_y, r_RTN_z], dtype=np.float64)
 
-    # Data
+    #Data
     f = data[0:3]
     c = data[3]
     R0_ICRS = data[4:7]
     V0_ICRS = data[7:10]
     coe_3 = data[10:15]
 
-    # Propagation of Keplerian motion of B around P1
+    #Propagation of Keplerian motion of B around P1
     Rt_ICRS, Vt_ICRS = propagate_lagrangian(R0_ICRS, V0_ICRS, t, sigma)
     Rt_RTN = ICRS2RTN(Rt_ICRS, list(coe_3) + [anu_3])
 
-	# Other
+	#Other values
     a = coe_3[0]
     e = coe_3[1]
     p = a * (1. - e**2)

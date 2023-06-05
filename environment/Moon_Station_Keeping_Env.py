@@ -128,10 +128,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
         else:  #4 body dynamics (add moon anomaly in the state)
-            s=np.array([state['r'][0], state['r'][1], state['r'][2], \
-                       state['v'][0], state['v'][1], state['v'][2], state['m'], state['anu_3']])  #current state
+            s = np.array([state['r'][0], state['r'][1], state['r'][2], \
+                       state['v'][0], state['v'][1], state['v'][2], \
+                        state['m'], state['anu_3']])  #current state
 
-            t_span=[state['t'], state['t']+time_step]
+            t_span = [state['t'], state['t']+time_step]
 
             #Events
             hitMoon.terminal = True
@@ -158,20 +159,18 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
         #dist_r_method choice
-
         if self.dist_r_method==1:
-
 
             #Solve equations of motion with CR3BP
             t_span = [state_next['t'], state_next['t']+self.T_Halo]
             if self.threebody:
-                s=np.concatenate((r_new, v_new), axis=None)
+                s = np.concatenate((r_new, v_new), axis=None)
                 data = []
                 sol_afterperiod = solve_ivp(fun=CR3BP_equations_ivp, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events,
                                             args = (data,), \
                                             rtol=1e-7, atol=1e-7)
             else:
-                s=np.array([r_new[0], r_new[1], r_new[2], \
+                s = np.array([r_new[0], r_new[1], r_new[2], \
                        v_new[0], v_new[1], v_new[2], m_new, state_next['anu_3']])  #current state
                 data = np.concatenate((self.r0_sun, self.v0_sun, coe_moon ),axis=None)
                 sol_afterperiod = solve_ivp(fun=BER4BP_3dof_free, t_span=t_span, t_eval=None, y0=s, method='RK45', events=events, \
@@ -229,16 +228,16 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             delta_v = dist_v_min
 
         else:
-            delta_r=norm(r_new-self.r_Halo[state_next['step']])  #error in distance
-            delta_v=norm(v_new-self.v_Halo[state_next['step']])  #error in velocity
+            delta_r = norm(r_new-self.r_Halo[state_next['step']])  #error in distance
+            delta_v = norm(v_new-self.v_Halo[state_next['step']])  #error in velocity
         
         if self.show_dist_from_Halo:
             state_next['dist_r_from_Halo'] = norm(r_new-self.r_Halo[state_next['step']])  #error in distance
             state_next['dist_v_from_Halo'] = norm(v_new-self.v_Halo[state_next['step']])  #error in distance
 
 
-        state_next['dist_r']=delta_r
-        state_next['dist_v']=delta_v
+        state_next['dist_r'] = delta_r
+        state_next['dist_v'] = delta_v
 
 
         return state_next
@@ -268,13 +267,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
                 reward = reward + 1
                 if delta_v <= self.epsilon_v:
                     reward = reward + 1
+
             if state['step']==self.num_steps:
                 done=True
-            
-            # if delta_r > max(self.max_dist_r/l_star, 10*self.epsilon_r):
-            #     done = True
+    
             if self.failure == 1:
-                # reward = reward - 10*(self.num_steps - state['step'])
                 done = True
 
             reward = reward/10
@@ -282,10 +279,9 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         else:
             delta_s = max(max((delta_r - self.epsilon_r)*self.w_r, delta_v - self.epsilon_v), 0)
             
-
             reward = -(delta_s+self.w*delta_m)  #reward function definition
 
-            if state['step']==self.num_steps:
+            if state['step'] == self.num_steps:
                 done = True
             if self.failure == 1:
                 if self.max_dist_r != -1:
@@ -365,8 +361,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
         return info
+    
 
-#show_dist_from_Halo
 
 
     def reset(self):  #reinitialize the process
@@ -394,10 +390,6 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         self.r0 = self.r_Halo[0]
         self.v0 = self.v_Halo[0]
-
-        # print("r_Halo shape:" , np.shape(self.r_Halo))
-        # print("r_Halo vector:", self.r_Halo)
-        # print("r0 vector:", self.r0)
 
 
         if self.error_initial_position:  #error on initial position and velocity (the error value is random but has a maximum)

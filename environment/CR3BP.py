@@ -1,5 +1,5 @@
 
-#Circular Restricted 3 Body Problem
+#Circular Restricted 3 Body Problem dynamics
 
 #functions: -CR3BP_equations_controlled
 #           -CR3BP_equations_free
