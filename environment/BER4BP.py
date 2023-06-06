@@ -36,7 +36,7 @@ i_3 = 23.5*conv  #inclination of body 3 orbit (wrt to ICRS) [rad]
 omega_3 = 0.  #Argument of periapsis [rad]
 OMEGA_3 = 0.  #RAAN [rad]
 
-# Conversion units (3-DoF)
+#Characteristic values
 l_star = a_3_d  #characteristic length [km]
 t_star = np.sqrt(a_3_d**3 / mu_ref_d)  #characteristic time [s]
 v_star = l_star / t_star  #characteristic velocity [km/s]
@@ -47,6 +47,7 @@ f_star = m_star * a_star  #characteristic force [kN]
 mu_third = GM_3_d 
 mu_sys = GM_2_d + GM_3_d
 sigma_first = (GM_1_d / mu_sys) + 1.
+#print(mu_sys)
 
 #Non-dimensional quantities
 a_2 = a_2_d / l_star

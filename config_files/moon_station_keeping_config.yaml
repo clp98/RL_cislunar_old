@@ -102,7 +102,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: PO_files/l1_halo_north.txt
+        filename: PO_files/NRHO_L2_rv.txt
         eps_schedule: [[0,0.1],[2000,1.0e-03]]  #([][training iterations,]))
         num_steps: 100  #number of iterations
         Isp: 3000  #specific impulse [s]
