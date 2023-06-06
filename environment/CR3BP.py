@@ -1,10 +1,4 @@
-
 #Circular Restricted 3 Body Problem dynamics
-
-#functions: -CR3BP_equations_controlled
-#           -CR3BP_equations_free
-#           -Jacobi_constant
-
 
 import numpy as np
 from numpy import sqrt
@@ -385,10 +379,10 @@ def propagate_cr3bp_free(s, t_eval):
     """
 
     #Integration
-    if t_eval[-1] == t_eval[0]:
-        return s
+    #if t_eval[-1] == t_eval[0]:
+    #    return s
 
-    funptr = CR3BP_eqs_free_lsoda.address
+    funptr = CR3BP_eqs_free_lsoda.address  #da errore su .address!
     sol, _ = solve_ivp_lsoda(funptr, s, t_eval, 1.0e-07, 1.0e-07)
 
     return sol 

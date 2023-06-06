@@ -1,12 +1,13 @@
-#Read txt file, extract initial conditions and propagate them to get Halo orbit
+Read txt file, extract initial conditions and propagate them to get Halo orbit
 
 import os
 import sys
 import time
 import numpy as np
 from numpy.linalg import norm
-from LOR_RL_cislunar.LOR_RL_cislunar.CR3BP import propagate_cr3bp_free, Jacobi_const
+from environment.CR3BP import propagate_cr3bp_free, Jacobi_const
 
+HALO ORBIT
 #initialize vectors
 x_Halo_L1=[]
 y_Halo_L1=[]
