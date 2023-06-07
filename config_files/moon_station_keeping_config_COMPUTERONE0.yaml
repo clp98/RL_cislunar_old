@@ -126,7 +126,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         A_sc: 0.1  #frontal area of the sc
         w: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
-        threebody: False  #3-body dynamics or 4-body dynamics
+        threebody: True  #3-body dynamics or 4-body dynamics
 
         single_matrix: True
         show_dist_from_Halo: False
