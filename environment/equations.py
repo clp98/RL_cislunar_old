@@ -69,7 +69,7 @@ def data_Halos(filename, num_steps, tf, num_Halo):
     T_Halo_all = []
     C_Halo_all = []
     with open(filename, 'r') as file:
-        # file.readline()
+        file.readline()
         file_all=file.readlines()
         for i in range(num_Halo): #read line
             line = file_all[i]
@@ -79,8 +79,8 @@ def data_Halos(filename, num_steps, tf, num_Halo):
             #save data
             r0_Halo_all.append(np.array([state[0],state[1],state[2]]))
             v0_Halo_all.append(np.array([state[3],state[4],state[5]]))
-            T_Halo_all.append(state[6])
-            C_Halo_all.append(state[10])
+            T_Halo_all.append(state[7])
+            C_Halo_all.append(state[6])
     
     r_Halo_all = []
     v_Halo_all = []

@@ -1,10 +1,12 @@
 # #Finish or start training from a certain checkpoint
 # load:
-#     trainer_dir: "/home/jupiter/Documents/carlo/RL_cislunar-2/results/PPO_2023-05-18_18-50-32/PPO_2023-05-18_22-10-14/"
+#     trainer_dir: "results/PPO_2023-05-31_09-10-41/"  
 #     prev_exp_dirs:
-#         - "/home/jupiter/Documents/carlo/RL_cislunar-2/results/PPO_2023-05-18_18-50-32/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_8a884_00000_0_2023-05-18_18-50-33/"
+#         - "results/PPO_2023-05-31_09-10-41/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_b0626_00000_0_2023-05-31_09-10-41/"  #
+        
 #     prev_last_cps:
-#         - 2000
+#         - 5000
+
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
@@ -16,7 +18,7 @@ custom_metrics:  #list of problem-specific metrics one wants to track during tra
    - mf
    - epsilon
    - failure
-   
+
 postproc_data:
     episode_step_data:  #data we want after every step
        - x 
@@ -27,18 +29,7 @@ postproc_data:
        - vz
        - m
        - t
-       - Fx
-       - Fy
-       - Fz
-       - F_mod
-       - dist_r
-       - dist_v
-    
-
-num_eval_episodes: 1  #number od episodes to evaluate 
-eval_env_config:
-    env_config:
-        prng_seed: 0  #seed of random numbers
+       - Fx#prova buona - riallenamento di (results/PPO_2023-05-30_10-07-25) per ultimi 800 step
 
 config:  #all the data necessary requested by Ray library (driver = cio che fa l'update della rete)
     num_workers: 25  #number of copies of the network
@@ -91,9 +82,9 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    #lr_schedule: [[0, 1.0e-04], [20000000, 1.0e-06]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
+    #lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
     vf_loss_coeff: 0.5
-    clip_param: 0.1  #by how much (percentage) the policy can vary
+    clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
     env: environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env  #which is the environment
     callbacks:
@@ -102,8 +93,8 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: PO_files/NRHO_L2_rv.txt
-        eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([][training iterations,]))
+        filename: ./Halo_L1_rv.txt #PO_files/l1_halo_north.txt
+        eps_schedule: [[0,0.001],[6000,0.001]]  #([][training iterations,]))
         num_steps: 100  #number of iterations
         Isp: 3000  #specific impulse [s]
         tf: 2.74291184  #maximum duration of the mission [t_star]
@@ -114,6 +105,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         w_r: 1.  #weight of the distance reward part
         threebody: False  #3-body dynamics or 4-body dynamics
 
+        single_matrix: True
         show_dist_from_Halo: False
         wild_reward: False
         max_dist_r: -1  #maximum dist_r allowed
@@ -122,6 +114,6 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         dist_r_method: 3  #1: dist-r lungo la Halo, 2: dist-r ortogonale alla Halo
         dr_max: 20.
         dv_max: 0.001
-        epsilon_r_scale: 1.0e+05
-        epsilon_v_scale: 1
+        epsilon_r_scale: 1.0e+04
+        epsilon_v_scale: 0.1
         
