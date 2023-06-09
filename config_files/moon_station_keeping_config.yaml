@@ -102,7 +102,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: PO_files/NRHO_L2_rv.txt
+        filename: PO_files/Halo_L1_rv.txt
         eps_schedule: [[0,0.1],[2000,1.0e-03]]  #([][training iterations,]))
         num_steps: 100  #number of iterations
         Isp: 3000  #specific impulse [s]
@@ -114,12 +114,14 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         w_r: 1.  #weight of the distance reward part
         threebody: True  #3-body dynamics or 4-body dynamics
 
+        show_dist_from_Halo: False
         wild_reward: True
-        max_dist_r: 500  #maximum dist_r allowed
+        max_dist_r: -1  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
         error_initial_position: True  #error on spacecraft initial position
-        dist_r_method: 3  #1: dist-r lungo la Halo, 2: dist-r ortogonale alla Halo
+        dist_r_method: 3  #1: dist_r lungo la Halo, 2: dist_r ortogonale alla Halo, 3: dist_r corretto
         dr_max: 20.
         dv_max: 0.001
-
+        epsilon_r_scale: 1.0e+05
+        epsilon_v_scale: 1
         

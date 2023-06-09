@@ -285,6 +285,7 @@ def CR3BP_equations_ivp(t, state, data):  #with control
     return state_dot
 
 
+
 def Jacobi_const(x, y, z, vx, vy, vz):
     """
     Evaluate the Jacobi constant C.

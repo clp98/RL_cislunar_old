@@ -1,4 +1,4 @@
-#Read txt file, extract initial conditions and propagate them to get Halo orbits
+#Reads txt file, extract initial conditions and propagate them to get Halo orbits
 
 import os
 import sys

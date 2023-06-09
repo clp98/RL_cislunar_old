@@ -28,21 +28,21 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         #actions: Fx, Fy, Fz, Fmod
 
         #Class attributes
-        self.ueq=self.Isp*g0/v_star  #equivalent flux velocity
-        self.time_step=self.tf/float(self.num_steps)  #time step
+        self.ueq = self.Isp*g0/v_star  #equivalent flux velocity
+        self.time_step = self.tf/float(self.num_steps)  #time step
         self.dr_max /= l_star
         self.dv_max /= v_star
 
-        self.num_obs=11  #number of observations 
-        self.num_act=4  #number of actions
-        self.observation_space=spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))  #observation box
-        self.action_space=spaces.Box(low=-1, high=1, shape=(self.num_act,))  #action box
+        self.num_obs = 11  #number of observations 
+        self.num_act = 4  #number of actions
+        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))  #observation box
+        self.action_space = spaces.Box(low=-1, high=1, shape=(self.num_act,))  #action box
 
-        self.max_episode_steps=self.num_steps  #maximum number of episodes
-        self.reward_range=(-float(np.inf),0)  #reward range (-inf,0)
+        self.max_episode_steps = self.num_steps  #maximum number of episodes
+        self.reward_range = (-float(np.inf),0)  #reward range (-inf,0)
 
-        self.r_Halo_ref=0.83  #approximated r0 of the Halo (taken from the txt)
-        self.v_Halo_ref=0.13  #approximated v0 of the Halo (taken from the txt)
+        self.r_Halo_ref = 0.83  #approximated r0 of the Halo (taken from the txt)
+        self.v_Halo_ref = 0.13  #approximated v0 of the Halo (taken from the txt)
         self.L1 = 0.8369  #L1 x-position
         self.L2 = 1.1557  #L2 x-position
         self.r_L1 = np.array([self.L1, 0, 0])
@@ -64,7 +64,6 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf, self.num_Halos)
         
-        #print("r_Halo_all shape:" , np.shape(self.r_Halo_all))
 
 
     def get_observation(self, state, control):  #get the current observation
@@ -83,7 +82,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])  
         delta_C = C_jacobi - self.C_Halo  #difference in Jacobi constant, additional observation
 
-        observation=np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
+        observation = np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
                                v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta, delta_C])
 
         return observation
@@ -94,9 +93,9 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
     def get_control(self, action, state):  #get the control thrust F
 
-        Fmod=0.5*(action[3]+1.)*self.Fmax
-        F_vect=action[:3]
-        F=Fmod*((F_vect)/norm(F_vect))
+        Fmod = 0.5*(action[3]+1.)*self.Fmax
+        F_vect = action[:3]
+        F = Fmod*((F_vect)/norm(F_vect))
 
         return F
 
@@ -111,7 +110,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
                        state['v'][0], state['v'][1], state['v'][2], \
                        state['m']])  #current state
 
-            t_span=[state['t'], state['t']+time_step]
+            t_span = [state['t'], state['t']+time_step]
 
 
             #Events
@@ -145,7 +144,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
                 args=(data,), rtol=1e-7, atol=1e-7)
 
 
-        self.failure=solution_int.status
+        self.failure = solution_int.status
 
         r_new = np.array([solution_int.y[0][-1], solution_int.y[1][-1], solution_int.y[2][-1]])
         v_new = np.array([solution_int.y[3][-1], solution_int.y[4][-1], solution_int.y[5][-1]])
@@ -159,7 +158,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
 
         #dist_r_method choice
-        if self.dist_r_method==1:
+        if self.dist_r_method == 1:
 
             #Solve equations of motion with CR3BP
             t_span = [state_next['t'], state_next['t']+self.T_Halo]
@@ -181,6 +180,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             delta_r = norm(r_afterperiod-r_new)  #error in distance with dist_r_method
             delta_v = norm(v_afterperiod-v_new)  #error in velocity with dist_r_method
+
 
         elif self.dist_r_method==2:
             
@@ -211,6 +211,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             delta_r = min(dist_r_vect)
             delta_v = min(dist_v_vect)
+
 
         elif self.dist_r_method == 3:
 
@@ -268,8 +269,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
                 if delta_v <= self.epsilon_v:
                     reward = reward + 1
 
-            if state['step']==self.num_steps:
-                done=True
+            if state['step'] == self.num_steps:
+                done = True
     
             if self.failure == 1:
                 done = True
@@ -327,8 +328,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         info['episode_step_data']['dist_r']=[prev_state['dist_r']*l_star]
         info['episode_step_data']['dist_v']=[prev_state['dist_v']*v_star*1e3]
         if self.show_dist_from_Halo:
-            info['episode_step_data']['dist_r_Halo'] = [prev_state['dist_r_from_Halo']*l_star]
-            info['episode_step_data']['dist_v_Halo'] = [prev_state['dist_v_from_Halo']*v_star*1e3]
+            info['episode_step_data']['dist_r_Halo']=[prev_state['dist_r_from_Halo']*l_star]
+            info['episode_step_data']['dist_v_Halo']=[prev_state['dist_v_from_Halo']*v_star*1e3]
 
         if done:  #episode ended
             info['episode_end_data']={}
@@ -377,10 +378,10 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             anu_1_deg = np.random.uniform(0,360)  #sun true anomaly choosen randomly
             self.r0_sun, self.v0_sun = par2ic(coe_sun + [anu_1_deg*conv], sigma)  #trasform the classical orbital element set into position and velocity vectors
             anu_3 = np.random.uniform(0,360)  #moon true anomaly choosen randomly
-            self.state['anu_3']=anu_3*conv
+            self.state['anu_3'] = anu_3*conv
 
         # Choose the Halo
-        k=randint(0,self.num_steps_Halo)  #
+        k=randint(0,self.num_steps_Halo)  
         i=randint(0,self.num_Halos-1)  #select a random matrix 
 
         self.r_Halo = self.r_Halo_all[i][k:k+self.num_steps_Halo+1]
@@ -405,16 +406,16 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         else:  #no error on initial position and velocity
             self.state['r'] = self.r0
             self.state['v'] = self.v0
-            self.state['dist_r']=0.
-            self.state['dist_v']=0.
-            self.dist_r_mean=0.
-            self.dist_v_mean=0.
+            self.state['dist_r'] = 0.
+            self.state['dist_v'] = 0.
+            self.dist_r_mean = 0.
+            self.dist_v_mean = 0.
         
         if self.show_dist_from_Halo:  #show perp distance from the reference orbit
             self.state['dist_r_from_Halo'] = self.state['dist_r']
             self.state['dist_v_from_Halo'] = self.state['dist_v']
 
        
-        observation=self.get_observation(self.state, control)  #first observation to be returned as output
+        observation = self.get_observation(self.state, control)  #first observation to be returned as output
 
         return observation

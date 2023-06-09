@@ -64,7 +64,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf, self.num_Halos)
         
-        #print("r_Halo_all shape:" , np.shape(self.r_Halo_all))
+
+
 
 
     def get_observation(self, state, control):  #get the current observation
@@ -182,6 +183,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             delta_r=norm(r_afterperiod-r_new)  #error in distance with dist_r_method
             delta_v=norm(v_afterperiod-v_new)  #error in velocity with dist_r_method
 
+
         elif self.dist_r_method==2:
             
             data_sc = np.concatenate((r_new, v_new), axis=None)
@@ -211,6 +213,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
             delta_r = min(dist_r_vect)
             delta_v = min(dist_v_vect)
+
 
         elif self.dist_r_method == 3:
 
