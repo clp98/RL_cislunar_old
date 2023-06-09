@@ -1,3 +1,5 @@
+#Finds the best combination of cpu/gpu to set in the config file
+
 import argparse
 from ast import For
 import os

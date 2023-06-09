@@ -1,4 +1,4 @@
-#Read txt file, extract initial conditions and propagate them to get Halo orbit
+#Read txt file, extract initial conditions and propagate them to get Halo orbits
 
 import os
 import sys
@@ -17,13 +17,13 @@ vy_Halo_L1=[]
 vz_Halo_L1=[]
 T_Halo_L1=[]
 
-x_Halo_L2=[]
-y_Halo_L2=[]
-z_Halo_L2=[]
-vx_Halo_L2=[]
-vy_Halo_L2=[]
-vz_Halo_L2=[]
-T_Halo_L2=[]
+# x_Halo_L2=[]
+# y_Halo_L2=[]
+# z_Halo_L2=[]
+# vx_Halo_L2=[]
+# vy_Halo_L2=[]
+# vz_Halo_L2=[]
+# T_Halo_L2=[]
 
 
 #read L1 Halo data

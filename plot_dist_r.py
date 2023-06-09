@@ -20,7 +20,7 @@ with open('/home/carlo/RL_cislunar/results/PPO_2023-05-13_05-56-55/PPO_2023-05-1
 file_stepdata.close()
 
 plt.plot(time, dist_r)
-plt.yscale('log')  #log scale
-plt.xlabel('time [*T_system]')
+plt.yscale('log')
+plt.xlabel('time [T_system]')
 plt.ylabel('delta_r [km]')
 plt.show()

@@ -1,5 +1,4 @@
 #NRHO orbit propagation from IC
-#(mi da errore su .address)
 
 import os
 import sys
@@ -10,11 +9,13 @@ from environment.CR3BP import propagate_cr3bp_free, Jacobi_const, CR3BP_eqs_free
 from scipy.integrate import solve_ivp
 
 
-#Initial conditions wrt to L2 point!
-mu = 0.012150529811497  #mu che andrebbe usato nelle equazioni dinamiche
+#Initial conditions (wrt to L2 point)
+mu = 0.012150529811497 
+
 x0 = -0.167809008979642
 y0 = 0.
 z0 = 0.0286160249739854
+
 vx0 = 0.
 vy0 = 0.882937858803859
 vz0 = 0.
@@ -72,12 +73,12 @@ def CR3BP_equations_free(t, state, mu):  #without control
 
 
 
-#Create file txt with NRHO orbits
+#Create file txt with NRHO orbit
 f_out_L2 = open('NRHO_L2_rv.txt', "w")
 f_out_L2.write("%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\t%12s\n" \
     % ("x", "y", "z", "vx", "vy", "vz", "C", "T"))
 
-
+#How many points for the propagation
 N_times = 100
 
 #L2 orbit propagation
@@ -86,7 +87,7 @@ t_eval = np.linspace(0., Dt, N_times)
 r0 = np.array([x0+X_L2, y0, z0])  #x0 is wrt to L2 
 v0 = np.array([vx0, vy0, vz0])
 
-s0 = np.concatenate((r0, v0), axis=None)
+s0 = np.concatenate((r0, v0), axis=None)  #initial state
 sol = solve_ivp(fun=CR3BP_equations_free, t_span=t_span, y0=s0, method='RK45', t_eval=t_eval, args=(mu,))
     
 for j in range(N_times):

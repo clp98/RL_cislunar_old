@@ -1,3 +1,4 @@
+#From the DART paper, defines the reference frames for the 4 body problem
 import numpy as np
 from numpy import sqrt, cos, sin
 from numpy.linalg import inv
