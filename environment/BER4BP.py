@@ -8,21 +8,24 @@ from environment.frames import *
 from environment.pyKepler import *
 
 
-# Math
+#Math
 conv = np.pi / 180.		                    
 g0 = 9.80665e-3  #sea-level gravitational acceleration, km/s^2
 SRP_1AU = 4.55987e-06  #solar radiation pressure at 1AU, Pa
 
-# Astrodynamics
+#Astrodynamics
 solar_day = 86400.  #one solar day [s]
 AU = 1.495978707e8  #astronomical unit [km]        
 GM_1_d = 132712440018.  #Gravitational parameter  (Sun) [km^3/s^2]
 GM_2_d = 398600.  #Gravitational parameter (body 2) [km^3/s^2]
-GM_3_d = 4905.  #Gravitational parameter (body 3) [km^3/s^2]
+mu = 0.01215059  #Mass ratio for the Halo orbit propagation (the same of equations.py)
+
+#Derive GM_3_d from the value of mu
+GM_3_d = (mu * GM_2_d) / (1 - mu)  #Gravitational parameter (body 3) [km^3/s^2]
 mu_ref_d = GM_2_d + GM_3_d  #Gravitational parameter (adjoint) [km^3/s^2]
 sigma_d = mu_ref_d + GM_1_d
 
-# Orbital elements
+#Orbital elements
 a_2_d = AU  #Semi-major axis (body 2-3) [km]
 e_2 = 0.017  #Eccentricity (body 2-3)
 i_2 = 0  #Inclination of body 2-3's orbit (wrt to the ecliptic) [rad]
@@ -47,12 +50,10 @@ f_star = m_star * a_star  #characteristic force [kN]
 mu_third = GM_3_d 
 mu_sys = GM_2_d + GM_3_d
 sigma_first = (GM_1_d / mu_sys) + 1.
-#print(mu_sys)
 
 #Non-dimensional quantities
 a_2 = a_2_d / l_star
 a_3 = a_3_d / l_star
-mu = GM_3_d / mu_ref_d  #Gravitational parameter body 3 (non-dimensional)
 sigma = sigma_d / mu_ref_d  #Total mass ratio
 
 #Initial orbital parameters of B around body 1
