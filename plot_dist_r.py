@@ -5,7 +5,7 @@ dist_r = []
 time = []
  
 #results/.../episode-step_data.txt
-with open('/home/carlo/RL_cislunar/results/PPO_2023-05-13_05-56-55/PPO_2023-05-13_18-15-48/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_dc3ee_00000_0_2023-05-13_18-15-48/checkpoint_002000/episode_step_data.txt', \
+with open('results/PPO_2023-06-14_14-14-38/PPO_2023-06-15_02-40-09/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_9e570_00000_0_2023-06-15_02-40-09/checkpoint_005928/episode_step_data.txt', \
           'r') as file_stepdata:
     file_stepdata.readline()
     file = file_stepdata.readlines()

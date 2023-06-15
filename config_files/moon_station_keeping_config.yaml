@@ -106,7 +106,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([][training iterations,]))
         num_steps: 100  #number of iterations
         Isp: 3000  #specific impulse [s]
-        tf: 2.74291184  #maximum duration of the mission [t_star]
+        tf: 2.74291184  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
         Fmax: 4.0e-02  #maximum thrust of the engine [], Fmax[N]=(value)*2.7307388899605793e-06*spacecraft mass
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1  #frontal area of the sc
