@@ -115,7 +115,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         threebody: False  #3-body dynamics or 4-body dynamics
 
         show_dist_from_Halo: False
-        wild_reward: False
+        wild_reward: True  #simplest approach for reward
         max_dist_r: 500  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
         error_initial_position: True  #error on spacecraft initial position
