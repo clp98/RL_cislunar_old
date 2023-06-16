@@ -375,7 +375,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         control=0.
 
         if not self.threebody:  #4-body dynamics, we introduce the sun0
-            anu_1_deg = np.random.uniform(0,360)  #sun true anomaly choosen randomly
+            anu_1_deg = np.random.uniform(0,360)  #sun true anomaly chosen randomly
             self.r0_sun, self.v0_sun = par2ic(coe_sun + [anu_1_deg*conv], sigma)  #trasform the classical orbital element set into position and velocity vectors
             anu_3 = np.random.uniform(0,360)  #moon true anomaly choosen randomly
             self.state['anu_3'] = anu_3*conv
