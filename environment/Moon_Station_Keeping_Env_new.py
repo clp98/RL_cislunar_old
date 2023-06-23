@@ -285,7 +285,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             delta_s=max(max((delta_r - self.epsilon_r)*self.w_r, delta_v - self.epsilon_v), 0)
             
 
-            reward = -(delta_s+self.w*delta_m)  #reward function definition
+            reward = -(delta_s+self.w_m*delta_m)  #reward function definition
 
             if state['step']==self.num_steps:
                 done=True

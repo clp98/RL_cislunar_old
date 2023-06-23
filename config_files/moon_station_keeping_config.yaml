@@ -1,10 +1,10 @@
 #Finish or start training from a certain checkpoint
-# load:
-#     trainer_dir: "results/PPO_2023-05-01_14-14-06/"
-#     prev_exp_dirs:
-#         - "results/PPO_2023-05-01_14-14-06/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_1b859_00000_0_2023-05-01_14-14-07/"
-#     prev_last_cps:
-#         - 500
+load:
+    trainer_dir: "results/PPO_2023-05-31_09-10-41_Prova buona/"
+    prev_exp_dirs:
+        - "results/PPO_2023-05-31_09-10-41_Prova buona/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_b0626_00000_0_2023-05-31_09-10-41/"
+    prev_last_cps:
+        - 5000
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
@@ -91,7 +91,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-06]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
+    #lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
@@ -102,7 +102,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: PO_files/l1_halo_north.txt
+        filename: PO_files/Halo_L1_rv.txt
         eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([][training iterations,]))
         num_steps: 100  #number of iterations
         Isp: 3000  #specific impulse [s]
@@ -110,7 +110,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         Fmax: 4.0e-02  #maximum thrust of the engine [], Fmax[N]=(value)*2.7307388899605793e-06*spacecraft mass
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1  #frontal area of the sc
-        w: 0.02  #weight of the mass reward part
+        w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
         threebody: False  #3-body dynamics or 4-body dynamics
 

@@ -91,7 +91,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    #lr_schedule: [[0, 1.0e-04], [20000000, 1.0e-06]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
+    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
@@ -102,20 +102,20 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: PO_files/NRHO_L2_rv.txt
-        eps_schedule: [[0,1.0e-03],[6000,1.0e-03]]  #([][training iterations,]))
+        filename: PO_files/l1_halo_north.txt
+        eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([][training iterations,]))
         num_steps: 100  #number of iterations
         Isp: 3000  #specific impulse [s]
-        tf: 2.030900  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
+        tf: 2.78753463  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
         Fmax: 4.0e-02  #maximum thrust of the engine [], Fmax[N]=(value)*2.7307388899605793e-06*spacecraft mass
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1  #frontal area of the sc
-        w: 0.02  #weight of the mass reward part
+        w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
         threebody: False  #3-body dynamics or 4-body dynamics
 
         show_dist_from_Halo: False
-        wild_reward: False
+        wild_reward: True
         max_dist_r: 500  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
         error_initial_position: True  #error on spacecraft initial position
