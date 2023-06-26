@@ -41,34 +41,38 @@ eval_env_config:
         prng_seed: 0  #seed of random numbers
 
 config:  #all the data necessary requested by Ray library (driver = cio che fa l'update della rete)
+
+    #cpu/gpu combination
+    #FURFARO05G
     num_workers: 4  #number of copies of the network
     num_envs_per_worker: 25  #number of environments
     num_gpus: 0  #number of gpus
     num_cpus_per_worker: 0.875  #number of cpus
     num_gpus_per_worker: 0  #number of gpus
     num_cpus_for_driver: 1  #number of cpu per driver
+
     rollout_fragment_length: 100
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
     train_batch_size: 10000  #step complessivi di tutti i worker di tutti gli environment
     model:  #it defines the architecture of the neural network
 
-        # #MLP
-        # fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer 
-        # fcnet_activation: tanh  #activation function used
-        # use_lstm: False
-        # vf_share_layers: False  #False --> rete separata (vf=value function)
-        # free_log_std: True  #True --> valori separati dalla rete
-
-        #LSTM
-        fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer 
+        #MLP
+        fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer 
         fcnet_activation: tanh  #activation function used
-        use_lstm: True
-        max_seq_len: 25
-        lstm_cell_size: 20
-        lstm_use_prev_action: True
-        lstm_use_prev_reward: False
-        vf_share_layers: True  #False --> rete separata (vf=value function)
-        free_log_std: False  #True --> valori separati dalla rete
+        use_lstm: False
+        vf_share_layers: False  #False --> rete separata (vf=value function)
+        free_log_std: True  #True --> valori separati dalla rete
+
+        # #LSTM
+        # fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer 
+        # fcnet_activation: tanh  #activation function used
+        # use_lstm: True
+        # max_seq_len: 25
+        # lstm_cell_size: 20
+        # lstm_use_prev_action: True
+        # lstm_use_prev_reward: False
+        # vf_share_layers: True  #False --> rete separata (vf=value function)
+        # free_log_std: False  #True --> valori separati dalla rete
 
     gamma: 0.999  #discount factor
     log_level: INFO  #che info voglio sia stampata a schermo
@@ -91,7 +95,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
+    #lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
@@ -110,9 +114,9 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         A_sc: 0.1  #frontal area of the sc
 
         #important quantities
-        eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([][training iterations,]))
+        eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([starting step,initial epsilon value][training iterations,final epsilon value]))
         num_steps: 100  #number of iterations
-        max_dist_r: -1  #maximum dist_r allowed
+        max_dist_r: 500  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
         w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part

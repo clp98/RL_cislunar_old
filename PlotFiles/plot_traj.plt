@@ -1,5 +1,5 @@
 
-filename1 = 'Halo_L1_rv.txt'
+#filename1 = 'Halo_L1_rv.txt'
 # filename2 = 'PO_files/L2_halo_north_orbits.txt'
 filename2 = indir.'episode_step_data.txt'
 
@@ -46,7 +46,7 @@ x_L2 = 1.1557
 
 splot "<echo '0.8369 0 0'" with p ls 1 notitle
 replot "<echo '0.8369 0 0'" using 1:2:3:(sprintf("%2s", "L1")) with labels offset char 0,0.7 notitle
-replot for [k = 1:1] filename1 i k using 1:2:3 w l lt 6 lw 2.5 notitle
+replot filename2 using 4:5:6 w l lt 6 lw 2.5 notitle
 replot filename2 using 1:2:3 w l lt 7 lw 2.5 notitle 
 
 # min = (GPVAL_Y_MIN < GPVAL_X_MIN ? GPVAL_Y_MIN : GPVAL_X_MIN)
