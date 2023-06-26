@@ -91,7 +91,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
+    #lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
@@ -116,7 +116,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
         show_dist_from_Halo: False
         wild_reward: True
-        max_dist_r: 500  #maximum dist_r allowed
+        max_dist_r: -1  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
         error_initial_position: True  #error on spacecraft initial position
         dist_r_method: 3  #1: dist_r lungo la Halo, 2: dist_r ortogonale alla Halo, 3: dist_r corretto

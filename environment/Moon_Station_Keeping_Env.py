@@ -54,9 +54,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         #Propagate the Halos
         self.num_steps_Halo = self.num_steps  #propagation number of steps
+        self.step_multiplier = 1
 
         if self.dist_r_method == 3:
-            self.num_steps_Halo = self.num_steps_Halo * 5
+            self.step_multiplier = 5
+        self.num_steps_Halo = self.num_steps_Halo * self.step_multiplier
 
         self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf, self.num_Halos)  #obtains all Halo vectors
         
@@ -64,10 +66,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
     def get_observation(self, state, control):  #gets the current observation
 
-        step_Halo = state['step']
-
-        if self.dist_r_method == 3:
-            step_Halo = step_Halo*5
+        step_Halo = state['step']*self.step_multiplier
 
         r_obs = state['r'] - self.r_Halo[step_Halo]  #observed relative position
         v_obs = state['v'] - self.v_Halo[step_Halo]  #observed relative velocity
@@ -318,6 +317,15 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         info['episode_step_data']['vx'] = [prev_state['v'][0]]
         info['episode_step_data']['vy'] = [prev_state['v'][1]]
         info['episode_step_data']['vz'] = [prev_state['v'][2]]
+
+        #Trajectory data to plot reference Halo
+        info['episode_step_data']['x_Halo'] = [self.r_Halo[prev_state['step']*self.step_multiplier][0]]
+        info['episode_step_data']['y_Halo'] = [self.r_Halo[prev_state['step']*self.step_multiplier][1]]
+        info['episode_step_data']['z_Halo'] = [self.r_Halo[prev_state['step']*self.step_multiplier][2]]
+        info['episode_step_data']['vx_Halo'] = [self.v_Halo[prev_state['step']*self.step_multiplier][0]]
+        info['episode_step_data']['vy_Halo'] = [self.v_Halo[prev_state['step']*self.step_multiplier][1]]
+        info['episode_step_data']['vz_Halo'] = [self.v_Halo[prev_state['step']*self.step_multiplier][2]]
+
         info['episode_step_data']['m'] = [prev_state['m']]
         info['episode_step_data']['t'] = [prev_state['t']]
         info['episode_step_data']['Fx'] = [control[0]]
@@ -348,6 +356,14 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             info['episode_step_data']['vx'].append(state['v'][0])
             info['episode_step_data']['vy'].append(state['v'][1])
             info['episode_step_data']['vz'].append(state['v'][2])
+
+            info['episode_step_data']['x_Halo'].append([self.r_Halo[state['step']*self.step_multiplier][0]])
+            info['episode_step_data']['y_Halo'].append([self.r_Halo[state['step']*self.step_multiplier][1]])
+            info['episode_step_data']['z_Halo'].append([self.r_Halo[state['step']*self.step_multiplier][2]])
+            info['episode_step_data']['vx_Halo'].append([self.v_Halo[state['step']*self.step_multiplier][0]])
+            info['episode_step_data']['vy_Halo'].append([self.v_Halo[state['step']*self.step_multiplier][1]])
+            info['episode_step_data']['vz_Halo'].append([self.v_Halo[state['step']*self.step_multiplier][2]])
+
             info['episode_step_data']['m'].append(state['m'])
             info['episode_step_data']['t'].append(state['t'])
             info['episode_step_data']['Fx'].append(control[0])
