@@ -1,9 +1,9 @@
 from pyrlprob.problem import RLProblem
 
 
-trainer_dir = 'results/PPO_2023-05-31_09-10-41_Prova buona/'
-exp_dir = 'results/PPO_2023-05-31_09-10-41_Prova buona/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_b0626_00000_0_2023-05-31_09-10-41'
-last_cp = 5000 
+trainer_dir = 'results/PPO_2023-06-26_13-56-09/'
+exp_dir = 'results/PPO_2023-06-26_13-56-09/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_e09a0_00000_0_2023-06-26_13-56-09/'
+last_cp = 6000 
 
 #Config file 
 config_file = exp_dir + "/config.yaml"
