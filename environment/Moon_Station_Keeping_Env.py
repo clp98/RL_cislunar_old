@@ -144,8 +144,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         v_new = np.array([solution_int.y[3][-1], solution_int.y[4][-1], solution_int.y[5][-1]])  #new velocity after integration
         m_new = solution_int.y[6][-1]  #new mass after integration
 
-        state_next = {'r':r_new, 'v':v_new,\
-                    'm':m_new, 't':solution_int.t[-1], 'step':state['step']+1}  #new state
+        state_next = {'r':r_new, 'v':v_new, 'm':m_new, 't':solution_int.t[-1], 'step':state['step']+1}  #new state
 
         if not self.threebody:
             state_next['anu_3'] = solution_int.y[7][-1]  #add moon anomaly if 4-body dynamics

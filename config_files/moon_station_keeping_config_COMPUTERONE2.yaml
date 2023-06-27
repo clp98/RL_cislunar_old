@@ -1,10 +1,10 @@
-#Finish or start training from a certain checkpoint
-load:
-    trainer_dir: "results/PPO_2023-06-26_18-53-25/"
-    prev_exp_dirs:
-        - "results/PPO_2023-06-26_18-53-25/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_677c1_00000_0_2023-06-26_18-53-25/"
-    prev_last_cps:
-        - 6000
+# #Finish or start training from a certain checkpoint
+# load:
+#     trainer_dir: "results/PPO_2023-06-26_18-53-25/"
+#     prev_exp_dirs:
+#         - "results/PPO_2023-06-26_18-53-25/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_677c1_00000_0_2023-06-26_18-53-25/"
+#     prev_last_cps:
+#         - 6000
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
@@ -25,6 +25,12 @@ postproc_data:
        - vx
        - vy
        - vz
+       - x_Halo
+       - y_Halo
+       - z_Halo
+       - vx_Halo
+       - vy_Halo
+       - vz_Halo
        - m
        - t
        - Fx
@@ -43,14 +49,6 @@ eval_env_config:
 config:  #all the data necessary requested by Ray library (driver = cio che fa l'update della rete)
 
     #cpu/gpu combination
-    # #FURFARO05G
-    # num_workers: 4  #number of copies of the network
-    # num_envs_per_worker: 25  #number of environments
-    # num_gpus: 0  #number of gpus
-    # num_cpus_per_worker: 0.875  #number of cpus
-    # num_gpus_per_worker: 0  #number of gpus
-    # num_cpus_for_driver: 1  #number of cpu per driver
-
     #COMPUTERONE
     num_workers: 25  #number of copies of the network
     num_envs_per_worker: 4  #number of environments
@@ -135,7 +133,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         epsilon_v_scale: 1  #scaling to have the right velocity measure
 
         #flags
-        filename: PO_files/Halo_L1_rv.txt  #file to extract Halo reference data from
+        filename: PO_files/l1_halo_north.txt  #file to extract Halo reference data from
         threebody: False  #3-body dynamics or 4-body dynamics
         error_initial_position: True  #error on spacecraft initial position (with max values dr_max and dv_max )
         show_dist_from_Halo: False

@@ -1,14 +1,14 @@
 # #Finish or start training from a certain checkpoint
 # load:
-#     trainer_dir: "/home/jupiter/Documents/carlo/RL_cislunar-2/results/PPO_2023-05-18_18-50-32/PPO_2023-05-18_22-10-14/"
+#     trainer_dir: "results/PPO_2023-06-26_18-53-25/"
 #     prev_exp_dirs:
-#         - "/home/jupiter/Documents/carlo/RL_cislunar-2/results/PPO_2023-05-18_18-50-32/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_8a884_00000_0_2023-05-18_18-50-33/"
+#         - "results/PPO_2023-06-26_18-53-25/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_677c1_00000_0_2023-06-26_18-53-25/"
 #     prev_last_cps:
-#         - 2000
+#         - 6000
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
-    training_iteration: 6000  #maximum number of gym iterations
+    training_iteration: 8000  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
    - dist_r_mean
@@ -25,6 +25,12 @@ postproc_data:
        - vx
        - vy
        - vz
+       - x_Halo
+       - y_Halo
+       - z_Halo
+       - vx_Halo
+       - vy_Halo
+       - vz_Halo
        - m
        - t
        - Fx
@@ -41,12 +47,16 @@ eval_env_config:
         prng_seed: 0  #seed of random numbers
 
 config:  #all the data necessary requested by Ray library (driver = cio che fa l'update della rete)
+
+    #cpu/gpu combination
+    #COMPUTERONE
     num_workers: 25  #number of copies of the network
     num_envs_per_worker: 4  #number of environments
     num_gpus: 1  #number of gpu
     num_cpus_per_worker: 0.64  #number of cpu
     num_gpus_per_worker: 0  #number of gpu
     num_cpus_for_driver: 0  #number of cpu per driver
+
     rollout_fragment_length: 100
     batch_mode: complete_episodes  #complete_episodes or troncate_episodes (complete --> it stops the episodes when done=True)
     train_batch_size: 10000  #step complessivi di tutti i worker di tutti gli environment
@@ -77,12 +87,12 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     ignore_worker_failures: True  #ignora i worker che falliscono e non ferma l'allenamento
     evaluation_parallel_to_training: True  #valutazione in parallelo
     evaluation_interval: 1  #intervallo di valutazione
-    evaluation_num_episodes: 25  #durata della valutazione
+    evaluation_num_episodes: 4  #durata della valutazione
     evaluation_config:  #config della valutazione
         explore: False  #esplorazione
         env_config:
             eps_schedule: [[0, 1.0e-03], [1, 1.0e-03]]  #epsilon law parameters
-    evaluation_num_workers: 25  #dist_v_mean
+    evaluation_num_workers: 4  #number of workers per valutazione
     use_critic: True
     use_gae: True
     lambda: 0.98  #discount factor (=[0,1])
@@ -91,7 +101,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     shuffle_sequences: True
     num_sgd_iter: 30  #quante iterazioni di gradient descent
     lr: 1.0e-04  #learning rate of the network = alpha
-    lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
+    #lr_schedule: [[0, 1.0e-04], [60000000, 1.0e-05]]  #decreasing learning rate ([][trainbatch size*training iterations,]))
     vf_loss_coeff: 0.5
     clip_param: 0.05  #by how much (percentage) the policy can vary
     vf_clip_param: 10.
@@ -102,26 +112,33 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
 
 
     env_config:  #dictionary with all values that represent the environment
-        filename: PO_files/l1_halo_north.txt
-        eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([][training iterations,]))
-        num_steps: 100  #number of iterations
+        
+        #sc physicial quantities
         Isp: 3000  #specific impulse [s]
-        tf: 2.74291184  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
         Fmax: 4.0e-02  #maximum thrust of the engine [], Fmax[N]=(value)*2.7307388899605793e-06*spacecraft mass
         m_sc: 1.  #initial mass of the spacecraft
         A_sc: 0.1  #frontal area of the sc
-        w_m: 0.02  #weight of the mass reward part
-        w_r: 1.  #weight of the distance reward part
-        threebody: False  #3-body dynamics or 4-body dynamics
 
-        show_dist_from_Halo: False
-        wild_reward: False
+        #important quantities
+        eps_schedule: [[0,0.1],[6000,1.0e-03]]  #([starting step,initial epsilon value][training iterations,final epsilon value]))
+        num_steps: 100  #number of iterations
         max_dist_r: 500  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
-        error_initial_position: True  #error on spacecraft initial position
-        dist_r_method: 3  #1: dist-r lungo la Halo, 2: dist-r ortogonale alla Halo
-        dr_max: 20.
-        dv_max: 0.001
-        epsilon_r_scale: 1.0e+05
-        epsilon_v_scale: 1
+        w_m: 0.02  #weight of the mass reward part
+        w_r: 1.  #weight of the distance reward part
+        tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
+        dr_max: 20.  #maximum position error
+        dv_max: 0.001  #maximum velocity error
+        epsilon_r_scale: 1.0e+05  #scaling to have the right position measure
+        epsilon_v_scale: 1  #scaling to have the right velocity measure
+
+        #flags
+        filename: PO_files/l1_halo_north.txt  #file to extract Halo reference data from
+        threebody: False  #3-body dynamics or 4-body dynamics
+        error_initial_position: True  #error on spacecraft initial position (with max values dr_max and dv_max )
+        show_dist_from_Halo: False
+        wild_reward: False
+        dist_r_method: 3  #1: dist_r lungo la Halo, 2: dist_r ortogonale alla Halo, 3: dist_r corretto
+
+        
         

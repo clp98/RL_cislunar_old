@@ -18,7 +18,6 @@ g0 = 9.80665e-3  #sea-level gravitational acceleration [km/s^2]
 
 
 
-
 #Calculates the mean of the state at every step
 def running_mean(mean, step, new_value):  
         
@@ -30,44 +29,44 @@ def running_mean(mean, step, new_value):
 
 
 #Chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
-def choose_Halo(filename, single_matrix):
+# def choose_Halo(filename, single_matrix):
 
-    with open(filename, 'r') as f:
-        line = f.readline()
-        lines = f.readlines()
-        rv_matrix = []
+#     with open(filename, 'r') as f:
+#         line = f.readline()
+#         lines = f.readlines()
+#         rv_matrix = []
 
-        for line in lines:
-            line_split = line.split()
+#         for line in lines:
+#             line_split = line.split()
 
-            if len(line_split) > 0:
-                vec = np.array(line_split).astype(np.float64)
-                rv_matrix.append(vec)
+#             if len(line_split) > 0:
+#                 vec = np.array(line_split).astype(np.float64)
+#                 rv_matrix.append(vec)
     
-    k = randint(0,100)  #select a random element from a matrix
-    i = randint(0,247)  #select a random matrix from the ones in the file
+#     k = randint(0,100)  #select a random element from a matrix
+#     i = randint(0,247)  #select a random matrix from the ones in the file
 
-    if single_matrix:  #extract only from the first matrix (Halo-1)
-        r0 = np.array(rv_matrix[k][0:3])  #initial position
-        v0 = np.array(rv_matrix[k][3:6])  #initial velocity
-        C_Halo = rv_matrix[k][6]
-        T_Halo = rv_matrix[k][7]
+#     if single_matrix:  #extract only from the first matrix (Halo-1)
+#         r0 = np.array(rv_matrix[k][0:3])  #initial position
+#         v0 = np.array(rv_matrix[k][3:6])  #initial velocity
+#         T_Halo = rv_matrix[j][6]
+#         C_Halo = rv_matrix[j][10]
 
-    else:  #extract from any of the matrices (Halo-j)
-        j = 101*i+k
-        r0 = np.array(rv_matrix[j][0:3])  #initial position
-        v0 = np.array(rv_matrix[j][3:6])  #initial velocity
-        C_Halo = rv_matrix[j][6]
-        T_Halo = rv_matrix[j][7]
+#     else:  #extract from any of the matrices (Halo-j)
+#         j = 101*i+k
+#         r0 = np.array(rv_matrix[j][0:3])  #initial position
+#         v0 = np.array(rv_matrix[j][3:6])  #initial velocity
+#         T_Halo = rv_matrix[j][6]
+#         C_Halo = rv_matrix[j][10]
      
 
-    return r0, v0, T_Halo, C_Halo
+#     return r0, v0, T_Halo, C_Halo
     
 
 
 
 #Chooses randomly a set of initial conditions (r0, v0, C, T) for a L1 Halo orbit to be propagated afterwards   
-def data_Halos(filename, num_steps, tf, num_Halo):
+def data_Halos(filename, num_steps, tf, num_Halo):  #filename = l1_halo_north
 
     r0_Halo_all = []
     v0_Halo_all = []
@@ -75,7 +74,7 @@ def data_Halos(filename, num_steps, tf, num_Halo):
     C_Halo_all = []
 
     with open(filename, 'r') as file:
-        file.readline()
+        #file.readline()
         file_all = file.readlines()
 
         for i in range(num_Halo):  #read line
@@ -86,8 +85,8 @@ def data_Halos(filename, num_steps, tf, num_Halo):
             #save initial conditions
             r0_Halo_all.append(np.array([state[0],state[1],state[2]]))
             v0_Halo_all.append(np.array([state[3],state[4],state[5]]))
-            C_Halo_all.append(state[6])
-            T_Halo_all.append(state[7])
+            T_Halo_all.append(state[6])
+            C_Halo_all.append(state[10])
     
     r_Halo_all = []
     v_Halo_all = []
@@ -98,7 +97,6 @@ def data_Halos(filename, num_steps, tf, num_Halo):
         v_Halo_all.append(v_Halo_i)
 
     return r_Halo_all, v_Halo_all, T_Halo_all, C_Halo_all
-
 
 
 
@@ -122,4 +120,3 @@ def rv_Halo(r0, v0, t0, tf, num_steps):
         y0 = sol
 
     return r_Halo, v_Halo
-
