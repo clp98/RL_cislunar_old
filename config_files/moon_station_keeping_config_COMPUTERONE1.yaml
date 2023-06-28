@@ -8,7 +8,7 @@
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
-    training_iteration: 4000  #maximum number of gym iterations
+    training_iteration: 5000  #maximum number of gym iterations
 
 custom_metrics:  #list of problem-specific metrics one wants to track during training through tensorboard
    - dist_r_mean
@@ -120,7 +120,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         A_sc: 0.1  #frontal area of the sc
 
         #important quantities
-        eps_schedule: [[0,1.0],[4000,0.1]]  #([starting step,initial epsilon value],[training iterations,final epsilon value]))
+        eps_schedule: [[0,1.0],[5000,0.1]]  #([starting step,initial epsilon value],[training iterations,final epsilon value]))
         num_steps: 100  #number of iterations
         max_dist_r: 500  #maximum dist_r allowed
         num_Halos: 1  #number of Halos to extract
@@ -130,7 +130,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         dr_max: 20.  #maximum position error
         dv_max: 0.001  #maximum velocity error
         epsilon_r_scale: 200  #scaling to have the right position measure (200 km --> 20 km)
-        epsilon_v_scale: 2  #scaling to have the right velocity measure (2 m/s --> 0.2 m/s)
+        epsilon_v_scale: 3  #scaling to have the right velocity measure (2 m/s --> 0.2 m/s)
 
         #flags
         filename: PO_files/l1_halo_north.txt  #file to extract Halo reference data from
