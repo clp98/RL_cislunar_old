@@ -3,7 +3,7 @@
 from pyrlprob.problem import RLProblem 
 
 #Configuration file
-config_file='config_files/moon_station_keeping_config_COMPUTERONE1.yaml'
+config_file='config_files/moon_station_keeping_config_venus1.yaml'
 
 #Define RL problem
 SKproblem = RLProblem(config_file)  #Station Keeping problem

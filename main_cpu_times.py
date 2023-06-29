@@ -13,7 +13,7 @@ from pyrlprob.problem import RLProblem
 
 # Input config file and parameters
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default="config_files/moon_station_keeping_config_2.yaml", \
+parser.add_argument('--config', type=str, default="config_files/moon_station_keeping_config_3.yaml", \
     help='Input file with algorithm, model and environment config')
 args = parser.parse_args()
 config_file = args.config
@@ -21,17 +21,17 @@ config = yaml.safe_load(open(config_file))
 
 # Tests
 hardware = ["cpu_only", "gpu_d_cpu_w"] #, "gpu_w_cpu_d", "gpu_only"
-cpus = 32.0
+cpus = 16.0
 gpus = 1
 envs = 100
-min_w = 50
-max_w = 100
+min_w = 1
+max_w = 50
 
 # Output file
 f_log = open("./cpu_times.txt", "w")
-f_log.write("%20s %20s %20s %20s %20s %20s %20s %20s\n" \
+f_log.write("%20s %20s %20s %20s %20s %20s %20s %20s %20s %20s\n" \
     % ("# hardware", "workers", "envs_per_worker", \
-    "cpus_per_w", "gpus_per_w", "cpus_per_d", "gpus_per_d", "time[s]"))
+    "eval_workers", "eval_epis", "cpus_per_w", "gpus_per_w", "cpus_per_d", "gpus_per_d", "time[s]"))
 
 ray.init(logging_level="ERROR", log_to_driver=False)
 
@@ -42,7 +42,7 @@ for h in hardware:
         if w > max_w or w < min_w:
             continue
         
-        eval_w = w
+        eval_w = max(1, int(w/2))
         total_w = w + eval_w
 
         if h == "cpu_only":
@@ -92,8 +92,8 @@ for h in hardware:
                     open_ray=False, return_time=True)
         
         # Print results
-        f_log.write("%20s %20d %20d %20.5f %20.5f %20.5f %20.5f %20.5f\n" \
-            % (h, w, int(envs / w), cpus_per_w, gpus_per_w, cpus_per_d, gpus_per_d, run_time))
+        f_log.write("%20s %20d %20d %20d %20d %20.5f %20.5f %20.5f %20.5f %20.5f\n" \
+            % (h, w, int(envs / w), eval_w, eval_w, cpus_per_w, gpus_per_w, cpus_per_d, gpus_per_d, run_time))
         
         print("Done case: w = %d, cpu_per_w = %4.3f" % (w, cpus_per_w))
 
