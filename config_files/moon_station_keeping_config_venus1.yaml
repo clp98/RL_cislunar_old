@@ -73,7 +73,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer 
         fcnet_activation: tanh  #activation function used
         use_lstm: True
-        max_seq_len: 25
+        max_seq_len: 25  #how many steps back the recurring network looks (it keeps memory for max_seq_len steps)
         lstm_cell_size: 20
         lstm_use_prev_action: True
         lstm_use_prev_reward: False
