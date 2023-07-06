@@ -1,10 +1,10 @@
 # #Finish or start training from a certain checkpoint
 # load:
-#     trainer_dir: "results/PPO_2023-06-28_14-29-00/"
+#     trainer_dir: "results/PPO_2023-07-03_11-46-17/"
 #     prev_exp_dirs:
-#         - "results/PPO_2023-06-28_14-29-00/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_cbfb4_00000_0_2023-06-28_14-29-00/"
+#         - "results/PPO_2023-07-03_11-46-17/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_e5286_00000_0_2023-07-03_11-46-18/"
 #     prev_last_cps:
-#         - 4800
+#         - 493
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
@@ -73,8 +73,8 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         fcnet_hiddens: [50,35]  #numero di layer, numero di neuroni per layer 
         fcnet_activation: tanh  #activation function used
         use_lstm: True
-        max_seq_len: 25  #how many steps back the recurring network looks (it keeps memory for max_seq_len steps), provare minore (10)
-        lstm_cell_size: 20  #dimension of the recurring network, provare minore (10)
+        max_seq_len: 45  #how many steps back the recurring network looks (it keeps memory for max_seq_len steps), provare minore (10) [25]
+        lstm_cell_size: 20  #dimension of the recurring network, provare minore (10) [20]
         lstm_use_prev_action: True
         lstm_use_prev_reward: False
         vf_share_layers: True  #False --> rete separata (vf=value function)
