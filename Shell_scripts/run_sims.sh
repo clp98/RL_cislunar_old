@@ -15,5 +15,5 @@
 #lmax_seq_len: 35 [LSTM_len35_size20]
 #PPO_2023-07-01_21-14-28 con max_seq_len=35, cell_size=10 [LSTM_len35_size10]
 
-python main_solve_RL_auto.py --config "config_files/moon_station_keeping_config_venus1.yaml"  
-python main_solve_RL_auto.py --config "config_files/moon_station_keeping_config_venus2.yaml"  
+python main_solve_RL_auto.py --config "config_files/moon_station_keeping_config_venus1.yaml"  #MLP, 5 halos, fcnet_hiddens: [50,35,20]
+python main_solve_RL_auto.py --config "config_files/moon_station_keeping_config_venus2.yaml"  #MLP, 5 halos, fcnet_hiddens: [85,41,20]

@@ -28,7 +28,11 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.dr_max /= l_star
         self.dv_max /= v_star
 
-        self.num_obs = 11  #number of observations 
+        if self.num_Halos == 1:
+            self.num_obs = 11  #number of observations 
+        else:
+            self.num_obs = 17  #number of observations 
+
         self.num_act = 4  #number of actions
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.num_obs,))  #observation box
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.num_act,))  #action box
@@ -78,9 +82,15 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         C_jacobi = Jacobi_constant(state['r'][0], state['r'][1], state['r'][2], state['v'][0], state['v'][1], state['v'][2])  #Jacobi constant evaluation
         delta_C = C_jacobi - self.C_Halo  #difference in Jacobi constant, additional observation
 
-        observation = np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
-                               v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta, delta_C])  #observation vector (input of the network)
 
+        if self.num_Halos == 1:
+            observation = np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
+                                v_obs[2], m_obs, dist_r_obs, dist_v_obs, theta, delta_C])  #observation vector (input of the network)
+        else:
+            observation = np.array([r_obs[0], r_obs[1], r_obs[2], v_obs[0], v_obs[1], \
+                                v_obs[2], self.r_Halo[step_Halo][0], self.r_Halo[step_Halo][1], self.r_Halo[step_Halo][2], \
+                                self.v_Halo[step_Halo][0], self.v_Halo[step_Halo][1], self.v_Halo[step_Halo][2], \
+                                m_obs, dist_r_obs, dist_v_obs, theta, delta_C])  #observation vector (input of the network)
         return observation
 
 
