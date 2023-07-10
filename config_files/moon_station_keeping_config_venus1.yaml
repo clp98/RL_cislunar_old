@@ -41,7 +41,7 @@ postproc_data:
        - dist_v
     
 
-num_eval_episodes: 1  #number od episodes to evaluate 
+num_eval_episodes: 50  #number od episodes to evaluate 
 # eval_env_config:
 #     env_config:
 #         prng_seed: 0  #seed of random numbers
@@ -126,7 +126,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         num_Halos: 5  #number of Halos to extract
         w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
-        tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
+        #tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
         dr_max: 20.  #maximum position error
         dv_max: 0.001  #maximum velocity error
         epsilon_r_scale: 200  #scaling to have the right position measure (200 km --> 20 km)

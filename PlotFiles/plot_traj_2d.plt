@@ -47,7 +47,7 @@ x_L2 = 1.1557
 plot "<echo '0.8369 0'" with p ls 1 notitle
 replot "<echo '0.8369 0'" using 1:2:3:(sprintf("%2s", "L1")) with labels offset char 0,0.7 notitle
 replot filename2 using 7:8 w l lt 6 lw 2.5 notitle
-replot filename2 using 1:2 w l lt 7 lw 2.5 notitle 
+# replot filename2 using 1:2 w l lt 7 lw 2.5 notitle 
 
 min = (GPVAL_Y_MIN < GPVAL_X_MIN ? GPVAL_Y_MIN : GPVAL_X_MIN)
 max = (GPVAL_Y_MAX > GPVAL_X_MAX ? GPVAL_Y_MAX : GPVAL_X_MAX)

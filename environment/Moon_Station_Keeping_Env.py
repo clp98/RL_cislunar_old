@@ -24,7 +24,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
 
         #Class attributes
         self.ueq = self.Isp*g0/v_star  #equivalent flux velocity
-        self.time_step = self.tf/float(self.num_steps)  #time step
+        # self.time_step = self.tf/float(self.num_steps)  #time step
         self.dr_max /= l_star
         self.dv_max /= v_star
 
@@ -64,8 +64,8 @@ class Moon_Station_Keeping_Env(AbstractMDP):
             self.step_multiplier = 5
         self.num_steps_Halo = self.num_steps_Halo * self.step_multiplier
 
-        self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf, self.num_Halos)  #obtains all Halo vectors
-        
+        # self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf, self.num_Halos)  #obtains all Halo vectors
+        self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, self.num_steps_Halo, self.num_Halos)  #obtains all Halo vectors
 
 
     def get_observation(self, state, control):  #gets the current observation
@@ -410,10 +410,24 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         i = randint(0,self.num_Halos-1)  #select a random matrix
         k = randint(0,self.num_steps_Halo)  #select a random line to extract r0 and v0
         
-        self.r_Halo = self.r_Halo_all[i][k:k+self.num_steps_Halo+1]  #extract reference Halo position
-        self.v_Halo = self.v_Halo_all[i][k:k+self.num_steps_Halo+1]  #extract reference Halo velocity
+        self.r_Halo_first_half = self.r_Halo_all[i][k:self.num_steps_Halo+1]  #extract reference Halo position
+        self.v_Halo_first_half = self.v_Halo_all[i][k:self.num_steps_Halo+1]  #extract reference Halo velocity
+        self.r_Halo_second_half = self.r_Halo_all[i][0:k]  #extract reference Halo position
+        self.v_Halo_second_half = self.v_Halo_all[i][0:k]  #extract reference Halo velocity
+        self.r_Halo = self.r_Halo_first_half + self.r_Halo_second_half
+        self.v_Halo = self.v_Halo_first_half + self.v_Halo_second_half
+        # print("shape r_Halo_first: ", self.r_Halo_first_half.shape)
+        # print("shape r_Halo_second: ", self.r_Halo_second_half.shape)
+        # print("shape v_Halo_first: ", self.v_Halo_first_half.shape)
+        # print("shape v_Halo_second: ", self.v_Halo_second_half.shape)
+        # print("shape r_Halo: ", len(self.r_Halo), len(self.r_Halo[0]))
+        # print("shape v_Halo: ", len(self.v_Halo), len(self.v_Halo[0]))
+
         self.T_Halo = self.T_Halo_all[i]  #extract reference Halo period
         self.C_Halo = self.C_Halo_all[i]  #extract reference Halo Jacobi constant
+
+        self.tf = self.T_Halo
+        self.time_step = self.tf/float(self.num_steps)
 
         self.r0 = self.r_Halo[0]
         self.v0 = self.v_Halo[0]
