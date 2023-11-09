@@ -13,7 +13,7 @@ from pyrlprob.problem import RLProblem
 
 # Input config file and parameters
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default="config_files/moon_station_keeping_config_3.yaml", \
+parser.add_argument('--config', type=str, default="config_files/moon_station_keeping_config_venus1.yaml", \
     help='Input file with algorithm, model and environment config')
 args = parser.parse_args()
 config_file = args.config
@@ -28,7 +28,7 @@ min_w = 1
 max_w = 50
 
 # Output file
-f_log = open("./cpu_times.txt", "w")
+f_log = open("./cpu_times_polaris.txt", "w")
 f_log.write("%20s %20s %20s %20s %20s %20s %20s %20s %20s %20s\n" \
     % ("# hardware", "workers", "envs_per_worker", \
     "eval_workers", "eval_epis", "cpus_per_w", "gpus_per_w", "cpus_per_d", "gpus_per_d", "time[s]"))

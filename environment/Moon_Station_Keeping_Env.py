@@ -65,7 +65,7 @@ class Moon_Station_Keeping_Env(AbstractMDP):
         self.num_steps_Halo = self.num_steps_Halo * self.step_multiplier
 
         # self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, 2*self.num_steps_Halo, 2*self.tf, self.num_Halos)  #obtains all Halo vectors
-        self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, self.num_steps_Halo, self.num_Halos)  #obtains all Halo vectors
+        self.r_Halo_all, self.v_Halo_all, self.T_Halo_all, self.C_Halo_all = data_Halos(self.filename, self.num_steps_Halo, self.num_Halos, self.first_trajectory, self.num_halos_skip)  #obtains all Halo vectors
 
 
     def get_observation(self, state, control):  #gets the current observation

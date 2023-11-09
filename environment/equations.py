@@ -66,7 +66,7 @@ def running_mean(mean, step, new_value):
 
 
 #Chooses randomly a set of initial conditions (r0, v0, C, T) for a L1 Halo orbit to be propagated afterwards   
-def data_Halos(filename, num_steps, num_Halo):  #filename = l1_halo_north
+def data_Halos(filename, num_steps, num_Halo, first_trajectory, num_halos_skip):  #filename = l1_halo_north
 
     r0_Halo_all = []
     v0_Halo_all = []
@@ -78,7 +78,7 @@ def data_Halos(filename, num_steps, num_Halo):  #filename = l1_halo_north
         file_all = file.readlines()
 
         for i in range(num_Halo):  #read line
-            line = file_all[i*10]
+            line = file_all[first_trajectory + i*num_halos_skip]
             line = line.split()
             state = np.array(line).astype(np.float64)  #non-dimensional data
             

@@ -123,7 +123,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         eps_schedule: [[0,1.0],[5000,0.1]]  #([starting step,initial epsilon value],[training iterations,final epsilon value]))
         num_steps: 100  #number of iterations
         max_dist_r: 500  #maximum dist_r allowed
-        num_Halos: 5  #number of Halos to extract
+        num_Halos: 1  #number of Halos to extract
         w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
         #tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
@@ -131,6 +131,10 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         dv_max: 0.001  #maximum velocity error
         epsilon_r_scale: 200  #scaling to have the right position measure (200 km --> 20 km)
         epsilon_v_scale: 3  #scaling to have the right velocity measure (2 m/s --> 0.2 m/s)
+
+        first_trajectory: 50  #first trajectory to extract (number 1 in this case)
+        num_halos_skip: 1  #how many halos to skip (1 in this case)
+
 
         #flags
         filename: PO_files/l1_halo_north.txt  #file to extract Halo reference data from

@@ -1,10 +1,10 @@
-#Finish or start training from a certain checkpoint
-load:
-    trainer_dir: "results/PPO_2023-07-08_01-25-33/"
-    prev_exp_dirs:
-        - "results/PPO_2023-07-08_01-25-33/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_01a33_00000_0_2023-07-08_01-25-33/"
-    prev_last_cps:
-        - 2983
+# #Finish or start training from a certain checkpoint
+# load:
+#     trainer_dir: "results/PPO_2023-07-03_11-46-17/"
+#     prev_exp_dirs:
+#         - "results/PPO_2023-07-03_11-46-17/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_e5286_00000_0_2023-07-03_11-46-18/"
+#     prev_last_cps:
+#         - 493
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
@@ -41,7 +41,7 @@ postproc_data:
        - dist_v
     
 
-num_eval_episodes: 1  #number od episodes to evaluate 
+num_eval_episodes: 50  #number od episodes to evaluate 
 # eval_env_config:
 #     env_config:
 #         prng_seed: 0  #seed of random numbers
@@ -63,7 +63,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     model:  #definisce la rete neurale
 
         #MLP
-        fcnet_hiddens: [85,41,20]  #numero di layer, numero di neuroni per layer 
+        fcnet_hiddens: [50,35,20]  #numero di layer, numero di neuroni per layer 
         fcnet_activation: tanh  #activation function used
         use_lstm: False
         vf_share_layers: False  #False --> rete separata (vf=value function)
@@ -123,14 +123,18 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         eps_schedule: [[0,1.0],[5000,0.1]]  #([starting step,initial epsilon value],[training iterations,final epsilon value]))
         num_steps: 100  #number of iterations
         max_dist_r: 500  #maximum dist_r allowed
-        num_Halos: 5  #number of Halos to extract
+        num_Halos: 101  #number of Halos to extract
         w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
-        tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
+        #tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
         dr_max: 20.  #maximum position error
         dv_max: 0.001  #maximum velocity error
         epsilon_r_scale: 200  #scaling to have the right position measure (200 km --> 20 km)
         epsilon_v_scale: 3  #scaling to have the right velocity measure (2 m/s --> 0.2 m/s)
+
+        first_trajectory: 0  #first trajectory to extract (number 51 in this case)
+        num_halos_skip: 1  #how many halos to skip (1 in this case)
+
 
         #flags
         filename: PO_files/l1_halo_north.txt  #file to extract Halo reference data from
