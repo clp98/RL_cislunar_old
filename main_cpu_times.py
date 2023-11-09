@@ -21,7 +21,7 @@ config = yaml.safe_load(open(config_file))
 
 # Tests
 hardware = ["cpu_only", "gpu_d_cpu_w"] #, "gpu_w_cpu_d", "gpu_only"
-cpus = 16.0
+cpus = 8.0
 gpus = 1
 envs = 100
 min_w = 1
