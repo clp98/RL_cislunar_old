@@ -41,7 +41,7 @@ postproc_data:
        - dist_v
     
 
-num_eval_episodes: 50  #number od episodes to evaluate 
+num_eval_episodes: 1  #number od episodes to evaluate 
 # eval_env_config:
 #     env_config:
 #         prng_seed: 0  #seed of random numbers
@@ -49,11 +49,11 @@ num_eval_episodes: 50  #number od episodes to evaluate
 config:  #all the data necessary requested by Ray library (driver = cio che fa l'update della rete)
 
     #cpu/gpu combination
-    #VENUS
-    num_workers: 10  #number of copies of the network
-    num_envs_per_worker: 10  #number of environments
+    #POLARIS SPV
+    num_workers: 20  #number of copies of the network
+    num_envs_per_worker: 5  #number of environments
     num_gpus: 0  #number of gpu
-    num_cpus_per_worker: 1  #number of cpu
+    num_cpus_per_worker: 0.23333  #number of cpu
     num_gpus_per_worker: 0  #number of gpu
     num_cpus_for_driver: 1  #number of cpu per driver
 
@@ -87,12 +87,12 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
     ignore_worker_failures: True  #ignora i worker che falliscono e non ferma l'allenamento
     evaluation_parallel_to_training: True  #valutazione in parallelo
     evaluation_interval: 1  #intervallo di valutazione
-    evaluation_num_episodes: 5  #durata della valutazione
+    evaluation_num_episodes: 10  #durata della valutazione (polaris=10)
     evaluation_config:  #config della valutazione
         explore: False  #esplorazione
         env_config:
             eps_schedule: [[0, 0.1], [1, 0.1]]  #epsilon law parameters
-    evaluation_num_workers: 5  #number of workers per valutazione
+    evaluation_num_workers: 10  #number of workers per valutazione (polaris=10)
     use_critic: True
     use_gae: True
     lambda: 0.98  #discount factor (=[0,1])
@@ -123,7 +123,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         eps_schedule: [[0,1.0],[5000,0.1]]  #([starting step,initial epsilon value],[training iterations,final epsilon value]))
         num_steps: 100  #number of iterations
         max_dist_r: 500  #maximum dist_r allowed
-        num_Halos: 1  #number of Halos to extract
+        num_Halos: 101  #number of Halos to extract
         w_m: 0.02  #weight of the mass reward part
         w_r: 1.  #weight of the distance reward part
         #tf: 2.7430009  #maximum duration of the mission [t_star], NB 2.78753463 is the maximum period of all orbits
@@ -132,7 +132,7 @@ config:  #all the data necessary requested by Ray library (driver = cio che fa l
         epsilon_r_scale: 200  #scaling to have the right position measure (200 km --> 20 km)
         epsilon_v_scale: 3  #scaling to have the right velocity measure (2 m/s --> 0.2 m/s)
 
-        first_trajectory: 50  #first trajectory to extract (number 1 in this case)
+        first_trajectory: 0  #first trajectory to extract (number 1 in this case)
         num_halos_skip: 1  #how many halos to skip (1 in this case)
 
 

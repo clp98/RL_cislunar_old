@@ -24,45 +24,6 @@ def running_mean(mean, step, new_value):
     new_mean = 1./float(step)*((float(step)-1.)*mean+new_value)
 
     return new_mean
-    
-
-
-
-#Chooses randomly a set of initial conditions (r0,v0,T) for a L1 Halo orbit to be propagated afterwards   
-# def choose_Halo(filename, single_matrix):
-
-#     with open(filename, 'r') as f:
-#         line = f.readline()
-#         lines = f.readlines()
-#         rv_matrix = []
-
-#         for line in lines:
-#             line_split = line.split()
-
-#             if len(line_split) > 0:
-#                 vec = np.array(line_split).astype(np.float64)
-#                 rv_matrix.append(vec)
-    
-#     k = randint(0,100)  #select a random element from a matrix
-#     i = randint(0,247)  #select a random matrix from the ones in the file
-
-#     if single_matrix:  #extract only from the first matrix (Halo-1)
-#         r0 = np.array(rv_matrix[k][0:3])  #initial position
-#         v0 = np.array(rv_matrix[k][3:6])  #initial velocity
-#         T_Halo = rv_matrix[j][6]
-#         C_Halo = rv_matrix[j][10]
-
-#     else:  #extract from any of the matrices (Halo-j)
-#         j = 101*i+k
-#         r0 = np.array(rv_matrix[j][0:3])  #initial position
-#         v0 = np.array(rv_matrix[j][3:6])  #initial velocity
-#         T_Halo = rv_matrix[j][6]
-#         C_Halo = rv_matrix[j][10]
-     
-
-#     return r0, v0, T_Halo, C_Halo
-    
-
 
 
 #Chooses randomly a set of initial conditions (r0, v0, C, T) for a L1 Halo orbit to be propagated afterwards   
