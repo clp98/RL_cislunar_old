@@ -1,10 +1,10 @@
-# #Finish or start training from a certain checkpoint
-# load:
-#     trainer_dir: "results/PPO_2023-07-03_11-46-17/"
-#     prev_exp_dirs:
-#         - "results/PPO_2023-07-03_11-46-17/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_e5286_00000_0_2023-07-03_11-46-18/"
-#     prev_last_cps:
-#         - 493
+#Finish or start training from a certain checkpoint
+load:
+    trainer_dir: "results/PPO_2023-11-12_23-34-34/"
+    prev_exp_dirs:
+        - "results/PPO_2023-11-12_23-34-34/PPO_environment.Moon_Station_Keeping_Env.Moon_Station_Keeping_Env_a78df_00000_0_2023-11-12_23-34-34/"
+    prev_last_cps:
+        - 4081
 
 run: ppo  #algorithm used
 stop:  #criterias to stop the training
