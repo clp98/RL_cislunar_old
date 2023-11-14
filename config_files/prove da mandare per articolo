@@ -2,3 +2,5 @@
 2. training H_0  evaluation H_-5:H_5
 3. training H_-50:H_50  evaluation H_-50:10:H_50
 4. training H_-50:H_50  evaluation H_-50:1:H_50
+
+NRHO: ricavare txt con condizioni iniziali da Matlab
